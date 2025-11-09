@@ -1,8 +1,8 @@
 node_modules
 deploy.js
 .env
-.wake
-.vscode
+.wake/
+.vscode/
 
 # Hardhat files
 /cache
