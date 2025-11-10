@@ -28,7 +28,7 @@ html{
 body{
     height: 100%;
     display: grid;
-    grid-template-rows: .75fr 10fr;
+    grid-template-rows: .5fr 10fr;
 }
 
 button{
@@ -111,8 +111,9 @@ select{
     border-radius: .125rem;
     background-color: #333;
     box-shadow: 0 0 2px 1px #3333;
-
 }
+
+
 
 #constructor{
     justify-content: space-around;
@@ -278,7 +279,7 @@ output{
 
 #modal p{
     padding: .25rem;
-    word-break: break-all;
+    /* word-break: break-all; */
     font-family: monospace;
     color: #f00a;
     font-weight: bold;
@@ -307,6 +308,7 @@ pre{
     padding: .25rem;
     border-radius: .4rem;
     display: inline;
+    color: #333;
 }
 
 code{
@@ -314,4 +316,5 @@ code{
     font-family: monospace;
     padding: .25rem;
     border-radius: .4rem;
+    color: #333;
 }

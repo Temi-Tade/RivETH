@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="./app.css">
+        <link rel="stylesheet" href="./src/app.css">
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lexend">
         <title>RivETH</title>
     </head>
@@ -78,7 +78,7 @@
                             <li>NodeJS. Download <a href="https://nodejs.org/en/download/current">here</a></li>
                             <li>Hardhat.
                             <li>Solidity compiler (solc). Run <code>npm install -g solc</code></li>
-                            <li>Solidity VSCode Extension - for syntax highlighting and code completion</li>
+                            <li>Solidity VSCode Extension - for syntax highlighting and code completion.</li>
                             <li>VSCode Live Server Extension by Ritwick Dey.</li>
                             <small><em style="color: red;">Verify publishers before installing any extension.</em></small>
                         </ul>
@@ -112,7 +112,8 @@
                 </div>
             </div>
         </div>
-        <script src="./ui.js"></script>
+        
+        <script src="./src/ui.js"></script>
     </body>
 </html>
 
@@ -125,151 +126,158 @@
 </script>
 
 <script type="module">
-    import { JsonRpcProvider } from "ethers";
-    import { ethers } from "ethers";
+import { JsonRpcProvider } from "ethers";
+import { ethers } from "ethers";
 
-    if (!sessionStorage.getItem("RivETHSessionData")) {
-        sessionStorage.setItem("RivETHSessionData", JSON.stringify({
-            lastAccount: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
-        }));
+if (!sessionStorage.getItem("RivETHSessionData")) {
+    sessionStorage.setItem("RivETHSessionData", JSON.stringify({
+        lastAccount: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+    }));
+}
+
+const RPC_URL = "http://127.0.0.1:8545";
+const provider = new JsonRpcProvider(RPC_URL);
+const contractData = {
+    abi: undefined,
+    bytecode: undefined,
+    address: undefined,
+    hasConstructor: false,
+    constructorParams: 0,
+    isConstructorpayable: false,
+};
+
+const txData = {
+    contractAddress: undefined,
+    hash: undefined,
+    nonce: undefined,
+    type: undefined,
+    blockNumber: undefined,
+    from: undefined,
+    data: undefined,
+    value: undefined,
+    gasLimit: undefined,
+    gasPrice: undefined,
+}
+
+const txs = [];
+const functions = [];
+    
+window.onload = async function () {
+    await loadData();
+}
+
+document.querySelector("#contract-name").oninput = function (input) {
+    if (input.target.value.trim().length > 0) {
+        input.target.nextElementSibling.disabled = false;
+    } else {
+        input.target.nextElementSibling.disabled = true;
     }
+}
 
-    const RPC_URL = "http://127.0.0.1:8545";
-    const provider = new JsonRpcProvider(RPC_URL);
-    const contractData = {
-        abi: undefined,
-        bytecode: undefined,
-        address: undefined,
-        hasConstructor: false,
-        constructorParams: 0,
-        isConstructorpayable: false,
-    };
-
-    const txData = {
-        contractAddress: undefined,
-        hash: undefined,
-        nonce: undefined,
-        type: undefined,
-        blockNumber: undefined,
-        from: undefined,
-        data: undefined,
-        value: undefined,
-        gasLimit: undefined,
-        gasPrice: undefined,
-    }
-
-    const txs = [];
-    const functions = [];
+async function loadData() {
+    try {
+        const _provider = RPC_URL;
+        const accounts = await provider.listAccounts();
+        const network = await provider._detectNetwork();
+        const blockNumber = await provider.getBlockNumber();
     
-    window.onload = async function () {
-        await loadData();
-    }
-
-    document.querySelector("#contract-name").oninput = function (input) {
-        if (input.target.value.trim().length > 0) {
-            input.target.nextElementSibling.disabled = false;
-        } else {
-            input.target.nextElementSibling.disabled = true;
-        }
-    }
-
-    async function loadData() {
-        try {
-            const _provider = RPC_URL;
-            const accounts = await provider.listAccounts();
-            const network = await provider._detectNetwork();
-            const blockNumber = await provider.getBlockNumber();
+        document.querySelector("#block-number").innerText = blockNumber;
+        document.querySelector("#chain-id").innerText = network.chainId;
+        document.querySelector("#provider").innerText = _provider;
+        document.querySelector("#accounts").innerHTML = "";
     
-            document.querySelector("#block-number").innerText = blockNumber;
-            document.querySelector("#chain-id").innerText = network.chainId;
-            document.querySelector("#provider").innerText = _provider;
-            document.querySelector("#accounts").innerHTML = "";
+        accounts.forEach(async (account) => {
+            let accountBalance = Number(await provider.getBalance(account.address)) / 1e18;
+            let formattedAddress = account.address.replace(account.address.substring(7, 35), "....")
+            document.querySelector("#accounts").innerHTML += `<option value=${account.address}>${formattedAddress} (${accountBalance} ETH)</option>`
+        });
     
-            accounts.forEach(async (account) => {
-                let accountBalance = Number(await provider.getBalance(account.address)) / 1e18;
-                let formattedAddress = account.address.replace(account.address.substring(7, 35), "....")
-                document.querySelector("#accounts").innerHTML += `
-                    <option value=${account.address}>${formattedAddress} (${accountBalance} ETH)</option>
-                    `
-                });
-    
-            setTimeout(() => {
-                if (sessionStorage.getItem("RivETHSessionData")) {
-                    const lastAccount = JSON.parse(sessionStorage.getItem("RivETHSessionData")).lastAccount;
-                    document.querySelector("#accounts").value = lastAccount || accounts[0].address;
-                    if (txs.length > 0) getContractBalance(contractData.address);
-                }
-            }, 1000);
-        } catch (error) {
-            CREATE_MODAL(`${new Error(error).message}. Cannot connect, is the node running?`);
-        }
-    }
-
-    async function getContractBalance(contractAddress) {
-        await provider.getBalance(contractAddress).then(balance => {
-            const contractBalance = ethers.formatEther(balance);
-            document.querySelector("#contract-balance").style.display = "block";
-            document.querySelector("#contract-balance").innerHTML = `<small>Balance: ${contractBalance} ETH</small>`;
-        })
-    }
-
-    document.querySelector("#load-contract").onclick = async function(e) {
-        try {
-            const abi = fetch(`http://127.0.0.1:5500/artifacts/${e.target.previousElementSibling.value.trim()}.abi`);
-            const bin = fetch(`http://127.0.0.1:5500/artifacts/${e.target.previousElementSibling.value.trim()}.bin`);
-            
-            await Promise.all([abi, bin])
-            .then(res => {
-                contractData.abi = res[0].text();
-                contractData.bytecode = res[1].text();
-            })
-            
-            await contractData.abi
-            .then(res => contractData.abi = res);
-            
-            await contractData.bytecode
-            .then(res => contractData.bytecode = res);
-            
-            if (JSON.parse(contractData.abi)[0].type === "constructor") {
-                let constructorParams = [];
-                contractData.hasConstructor = true;
-    
-                JSON.parse(contractData.abi)[0].inputs.forEach(param => {
-                    constructorParams.push(param.name);
-                });
-                
-                document.querySelector("#constructor").style.display = "block";
-                document.querySelector("#deploy-params").placeholder = "";
-                contractData.constructorParams = constructorParams.length;
-
-                if (constructorParams.length === 0) {
-                    document.querySelector("#deploy").disabled = false;
-                    document.querySelector("#deploy-params").disabled = true;
-                    document.querySelector("#deploy-params").placeholder = "No constructor args";
-                } else {
-                    document.querySelector("#deploy-params").disabled = false;
-                }
-    
-                constructorParams.forEach(param => {
-                    document.querySelector("#deploy-params").placeholder += `${param}, `
-                });
-    
-                if (JSON.parse(contractData.abi)[0].stateMutability === "payable") {
-                    contractData.isConstructorpayable = true;
-                }
+        setTimeout(() => {
+            if (sessionStorage.getItem("RivETHSessionData")) {
+                const lastAccount = JSON.parse(sessionStorage.getItem("RivETHSessionData")).lastAccount;
+                document.querySelector("#accounts").value = lastAccount || accounts[0].address;
+                if (txs.length > 0) getContractBalance(contractData.address);
             }
-        } catch (error) {
-            CREATE_MODAL(new Error(error).message);
-        }
+        }, 1000);
+    } catch (error) {
+        CREATE_MODAL(`${new Error(error).message}. Cannot connect, is the node running?`);
     }
+}
 
-    function getFunctions() {
-        functions.length = 0;
-        const contractABIJSON = JSON.parse(contractData.abi);
-        document.querySelector("#interaction-panel ul").innerHTML = "";
+async function getContractBalance(contractAddress) {
+    await provider.getBalance(contractAddress).then(balance => {
+        const contractBalance = ethers.formatEther(balance);
+        document.querySelector("#contract-balance").style.display = "block";
+        document.querySelector("#contract-balance").innerHTML = `<small>Balance: ${contractBalance} ETH</small>`;
+    })
+}
+
+document.querySelector("#load-contract").onclick = async function(e) {
+    try {
+        const abi = fetch(`http://127.0.0.1:5500/artifacts/${e.target.previousElementSibling.value.trim()}.abi`);
+        const bin = fetch(`http://127.0.0.1:5500/artifacts/${e.target.previousElementSibling.value.trim()}.bin`);
+            
+        await Promise.all([abi, bin])
+        .then(res => {
+            contractData.abi = res[0].text();
+            contractData.bytecode = res[1].text();
+        })
+            
+        await contractData.abi
+        .then(res => contractData.abi = res);
+            
+        await contractData.bytecode
+        .then(res => contractData.bytecode = res);
+            
+        if (JSON.parse(contractData.abi)[0].type === "constructor") {
+            let constructorParams = [];
+            contractData.hasConstructor = true;
+    
+            JSON.parse(contractData.abi)[0].inputs.forEach(param => {
+                constructorParams.push(param.name);
+            });
+                
+            document.querySelector("#constructor").style.display = "block";
+            document.querySelector("#deploy-params").placeholder = "";
+            contractData.constructorParams = constructorParams.length;
+
+            if (constructorParams.length === 0) {
+                document.querySelector("#deploy").disabled = false;
+                document.querySelector("#deploy-params").disabled = true;
+                document.querySelector("#deploy-params").placeholder = "No constructor args";
+            } else {
+                document.querySelector("#deploy-params").disabled = false;
+            }
+    
+            constructorParams.forEach(param => {
+                document.querySelector("#deploy-params").placeholder += `${param}, `
+            });
+    
+            if (JSON.parse(contractData.abi)[0].stateMutability === "payable") {
+                contractData.isConstructorpayable = true;
+            }
+        }
+    } catch (error) {
+        CREATE_MODAL("Error locating compiled contract. Run <pre>solc [FILE_NAME].sol --abi --bin -o ./artifacts/</pre>. Replace [FILE_NAME] with the name of the solidity file you want to compile");
+    }
+}
+
+function getFunctions() {
+    functions.length = 0;
+    const contractABIJSON = JSON.parse(contractData.abi);
+    document.querySelector("#interaction-panel ul").innerHTML = "";
         
-        contractABIJSON.forEach((entry) => {
-            if (entry.type === "function" &&  entry.name && (entry.stateMutability === 'view' || entry.stateMutability === 'pure' || entry.stateMutability === 'nonpayable' || entry.stateMutability === 'payable')) {
+    contractABIJSON.forEach((entry) => {
+        if (
+            entry.type === "function" &&  
+            entry.name && 
+            (
+                entry.stateMutability === 'view' || 
+                entry.stateMutability === 'pure' || 
+                entry.stateMutability === 'nonpayable' || 
+                entry.stateMutability === 'payable'
+            )
+            ) {
                 functions.push(entry);
                 document.querySelector("#interaction-panel ul").innerHTML += `
                     <li>
@@ -284,66 +292,67 @@
             }
         })
 
-        functions.map((func, ind) => {
-            if (func.name && func.inputs.length !== 0) {
-                func.inputs.map(f => {
-                    [...document.querySelectorAll("#interaction-panel ul li div p")][ind].innerHTML += `<input placeholder="${f.type} ${f.name}" autocomplete="off" spellcheck="false"/>`
-                });
-            }
-        })
-    }
-
-    function getTxData(transactionData) {
-        document.querySelector("#intro").style.display = "none";
-        document.querySelector("#tx-details #details-wrap").style.display = "block";
-        document.querySelector("#tx-details #details-wrap").innerHTML += `<table id=${transactionData.hash} style="scroll-behavior: smooth;"><caption>✅ Tx: ${transactionData.hash}</caption></table>`;
-
-        for (const key in transactionData) {
-            if (txData[key] === undefined) continue;
-            document.getElementById(transactionData.hash).innerHTML += `
-                <tr>
-                    <td>${key}</td>
-                    <td>${(key !== "value") && (key !== "gasPrice") && (key !== "gasLimit") && (key !== "maxFeePerGas") && (key !== "maxPriorityFeePerGas") ? transactionData[key] : `${transactionData[key]} wei`}</td>
-                </tr>
-            `
+    functions.map((func, ind) => {
+        if (func.name && func.inputs.length !== 0) {
+            func.inputs.map(f => {
+                [...document.querySelectorAll("#interaction-panel ul li div p")][ind].innerHTML += `<input placeholder="${f.type} ${f.name}" autocomplete="off" spellcheck="false"/>`
+            });
         }
-        document.getElementById(transactionData.hash).scrollIntoView();
+    })
+}
+
+function getTxData(transactionData) {
+    document.querySelector("#intro").style.display = "none";
+    document.querySelector("#tx-details #details-wrap").style.display = "block";
+    document.querySelector("#tx-details #details-wrap").innerHTML += `<table id=${transactionData.hash} style="scroll-behavior: smooth;"><caption>✅ Tx: ${transactionData.hash}</caption></table>`;
+
+    for (const key in transactionData) {
+        if (txData[key] === undefined) continue;
+        document.getElementById(transactionData.hash).innerHTML += `
+            <tr>
+                <td>${key}</td>
+                <td>${(key !== "value") && (key !== "gasPrice") && (key !== "gasLimit") && (key !== "maxFeePerGas") && (key !== "maxPriorityFeePerGas") ? transactionData[key] : `${transactionData[key]} wei`}</td>
+            </tr>
+        `
     }
+    document.getElementById(transactionData.hash).scrollIntoView();
+}
     
-    document.querySelector("#deploy").onclick = async function() {
-        try {
-            const signer = await provider.getSigner(document.querySelector("#accounts").selectedIndex);
-            const deploymentOverrides = {};
+document.querySelector("#deploy").onclick = async function() {
+    try {
+        const signer = await provider.getSigner(document.querySelector("#accounts").selectedIndex);
+        const deploymentOverrides = {};
 
-            let deployParams = "";
-            if (contractData.hasConstructor) {
-                deployParams = document.querySelector("#deploy-params").value.trim().split(",");
+        let deployParams = "";
+        if (contractData.hasConstructor) {
+            deployParams = document.querySelector("#deploy-params").value.trim().split(",");
 
-            if (contractData.isConstructorpayable) {
-                    deploymentOverrides.value = BigInt(document.querySelector("#ether").value.toString());
-                }
+        if (contractData.isConstructorpayable) {
+                deploymentOverrides.value = BigInt(document.querySelector("#ether").value.toString());
             }
+        }
 
-            let contract;
-            const factory = new ethers.ContractFactory(contractData.abi, contractData.bytecode, signer);
+        let contract;
+        const factory = new ethers.ContractFactory(contractData.abi, contractData.bytecode, signer);
 
-            if (contractData.constructorParams > 1) {
-                contract = await factory.deploy(...deployParams, deploymentOverrides);
-                await contract.waitForDeployment();
-            } else {
-                contract = await factory.deploy(deploymentOverrides);
-                await contract.waitForDeployment();
-            }
+        if (contractData.constructorParams > 1) {
+            contract = await factory.deploy(...deployParams, deploymentOverrides);
+            await contract.waitForDeployment();
+        } else {
+            contract = await factory.deploy(deploymentOverrides);
+            await contract.waitForDeployment();
+        }
 
-            for (const key in txData) {
-                txData[key] = await contract.deploymentTransaction()[key];
-            }
-            txData.contractAddress = await contract.getAddress();
-            contractData.address = await contract.getAddress();
-            txs.push(await txData);
+        for (const key in txData) {
+            txData[key] = await contract.deploymentTransaction()[key];
+        }
 
-            getTxData(txData);
-            getFunctions();
+        txData.contractAddress = await contract.getAddress();
+        contractData.address = await contract.getAddress();
+        txs.push(await txData);
+
+        getTxData(txData);
+        getFunctions();
         
         sessionStorage.setItem("RivETHSessionData", JSON.stringify({
             lastAccount: document.querySelector("#accounts").value
@@ -392,25 +401,25 @@
                         lastAccount: document.querySelector("#accounts").value
                     }));
                 } catch (error) {
-                        CREATE_MODAL("❌ " + new Error(error).message);
+                        CREATE_MODAL(new Error(error).message);
                 }
             }
         });
 
         await loadData();
 
-        } catch (error) {
-            CREATE_MODAL("❌ " + new Error(error).message);
+    } catch (error) {
+        CREATE_MODAL(new Error(error).message);
+    }
+}
+
+document.querySelector("#deploy-params").oninput = function(e) {
+    if (contractData.hasConstructor) {
+        if (e.target.value.trim().split(",").length === contractData.constructorParams && e.target.value.trim().split(",")[contractData.constructorParams - 1] !== "") {
+            document.querySelector("#deploy").disabled = false;
+        } else {
+            document.querySelector("#deploy").disabled = true;
         }
     }
-
-    document.querySelector("#deploy-params").oninput = function(e) {
-        if (contractData.hasConstructor) {
-            if (e.target.value.trim().split(",").length === contractData.constructorParams && e.target.value.trim().split(",")[contractData.constructorParams - 1] !== "") {
-                document.querySelector("#deploy").disabled = false;
-            } else {
-                document.querySelector("#deploy").disabled = true;
-            }
-        }
-    };
+}
 </script>
