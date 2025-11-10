@@ -3,6 +3,7 @@ deploy.js
 .env
 .wake/
 .vscode/
+todo.md
 
 # Hardhat files
 /cache

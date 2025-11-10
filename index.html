@@ -28,7 +28,7 @@
             <div id="load-area">
                 <div>
                     <div>
-                        <p>Load Compiled Contract</p>
+                        <p style="padding: .25rem;">Load Compiled Contract</p>
                         <div id="contract-loader">
                             <input type="text" id="contract-name" placeholder="Contract Name" autocomplete="off" spellcheck="false">
                             <button id="load-contract" disabled>Load</button>
@@ -54,7 +54,7 @@
                 </div>
 
                 <div id="interaction-panel">
-                    <p style="padding: .25rem .5rem;">Interact</p>
+                    <p>Interact</p>
                     <p id="contract-balance" style="display: none;"></p>
                     <ul>
                         <p>
@@ -73,32 +73,40 @@
                     </div>
 
                     <div>
-                        <h3>Requirements</h3>
-                        <ul>
-                            <li>NodeJS. Download <a href="https://nodejs.org/en/download/current">here</a></li>
-                            <li>Hardhat. (Will be installed alongside dependencies).
-                            <li>Solidity compiler (solc). Run <code>npm install -g solc</code></li>
-                            <li>Solidity VSCode Extension - for syntax highlighting and code completion.</li>
-                            <li>VSCode Live Server Extension by Ritwick Dey.</li>
-                            <small><em style="color: red;">Verify publishers before installing any extension.</em></small>
-                        </ul>
+                        <div id="requirements-and-notes">
+                            <div>
+                                <h3>Requirements</h3>
+                                <ul>
+                                    <li>NodeJS. Download <a href="https://nodejs.org/en/download/current">here</a></li>
+                                    <li>Hardhat. (Will be installed alongside dependencies).
+                                    <li>Solidity compiler (solc). Run <code>npm install -g solc</code></li>
+                                    <li>Solidity VSCode Extension - for syntax highlighting and code completion.</li>
+                                    <li>VSCode Live Server Extension by Ritwick Dey.</li>
+                                    <small><em style="color: red;">Verify publishers before installing any extension.</em></small>
+                                </ul>
+                            </div>
 
-                        <h3>Set up</h3>
-                        <ul>
-                            <li>In your terminal or git bash (for windows), download RivETH. <br/><code style="display: block; text-align: center; width: 70%; margin: auto; font-size: .8rem; margin-bottom: .25rem;">curl -L -0 https://github.com/Temi-Tade/RivETH/archive/refs/heads/main.zip --output RivETH.zip && unzip RivETH.zip -d temp && mv temp/RivETH-main/* . && rm -rf temp RivETH.zip</code></li>
-                            <li>Navigate to the <code>RivETH</code> folder. <code>cd RivETH</code> and open it in VSCode.</li>
-                            <li>Install dependencies. <code>npm install</code></li>
-                            <li>In the <code>RivETH</code> directory in your terminal, start a local hardhat node: <pre>npx hardhat node</pre></li>
-                            <li>In a separate terminal, compile the smart contract's solidity code: <pre>solc [FILE_NAME].sol --abi --bin -o ./artifacts/</pre>. Replace [FILE_NAME] with the name of the file you want to compile.</li>
-                            <li>Start VSCode live server extension to open RivETH in your browser.</li>
-                        </ul>
+                            <div>
+                                <h3 style="color: red;">Notes</h3>
+                                <ul>
+                                    <li>You can find pre-written solidity smart contracts in the <code>contracts/</code> folder. Note that these contracts have not been reviewed and are not to be used in production.</li>
+                                    <li>Do not save or write any file to the <code>artifacts/</code> folder. The solidity compiler will automatically write files to this folder.</li>
+                                    <li>Use the same name for the solidity file and contract (e.g. <code>MyContract.sol</code> and <code>contract MyContract{...}</code>).</li>
+                                </ul>
+                            </div>
+                        </div>
 
-                        <h3 style="color: red;">Notes</h3>
-                        <ul>
-                            <li>You can find pre-written solidity smart contracts in the <code>contracts/</code> folder. Note that these contracts have not been reviewed and are not to be used in production.</li>
-                            <li>Do not save or write any file to the <code>artifacts/</code> folder. The solidity compiler will automatically write files to this folder.</li>
-                            <li>Use the same name for the solidity file and contract (e.g. <code>MyContract.sol</code> and <code>contract MyContract{...}</code>).</li>
-                        </ul>
+                        <div id="setup">
+                            <h3>Set up</h3>
+                            <ul>
+                                <li>In your terminal or git bash (for windows), download RivETH. <br/><code style="display: block; text-align: center; width: 70%; margin: auto; font-size: .8rem; margin-bottom: .25rem;">curl -L -0 https://github.com/Temi-Tade/RivETH/archive/refs/heads/main.zip --output RivETH.zip && unzip RivETH.zip -d temp && mv temp/RivETH-main/* . && rm -rf temp RivETH.zip</code></li>
+                                <li>Navigate to the <code>RivETH</code> folder. <code>cd RivETH</code> and open it in VSCode.</li>
+                                <li>Install dependencies. <code>npm install</code></li>
+                                <li>In the <code>RivETH</code> directory in your terminal, start a local hardhat node: <pre>npx hardhat node</pre></li>
+                                <li>In a separate terminal, compile the smart contract's solidity code: <pre>solc [FILE_NAME].sol --abi --bin -o ./artifacts/</pre>. Replace [FILE_NAME] with the name of the file you want to compile.</li>
+                                <li>Start VSCode live server extension to open RivETH in your browser.</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>

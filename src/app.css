@@ -49,6 +49,7 @@ input{
     border-radius: .4rem;
     border: 1.5px solid #777;
     display: inline-block;
+    background-color: transparent;
 }
 
 input:focus{
@@ -65,7 +66,6 @@ nav{
     width: 100%;
     position: sticky;
     top: 0;
-    z-index: 999;
     background-color: #fff;
 }
 
@@ -117,7 +117,10 @@ select{
     box-shadow: 0 0 2px 1px #3333;
 }
 
-
+#load-area{
+    background-color: #ccc7;
+    padding: .25rem;
+}
 
 #constructor{
     justify-content: space-around;
@@ -130,7 +133,9 @@ select{
 }
 
 #contract-area {
-    padding: .5rem;
+    /* padding: .5rem;
+    padding-top: 0;
+    padding-left: 0; */
     display: grid;
     grid-template-columns: 1.5fr 6fr;
     height: 100%;
@@ -163,6 +168,10 @@ select{
     padding: 0 .5rem;
 }
 
+#interaction-panel #contract-balance{
+    box-shadow: 0 2px 2px 0 #3333;
+}
+
 #interaction-panel ul {
     list-style-type: none;
     height: 20rem;
@@ -188,6 +197,7 @@ select{
 
 #tx-details {
     width: 100%;
+    padding-top: 1rem;
 }
 
 #tx-details #details-wrap{
@@ -233,14 +243,6 @@ td:nth-child(2){
     text-overflow: ellipsis;
     word-break: break-all;
 }
-/* 
-toast 
-let addy persist after tx /
-change signers for interactions /
-robust error handling 
-theme
-handle sending ETH to non-payable functions
-*/
 
 output{
     display: inline-block;
@@ -284,6 +286,10 @@ output{
     text-align: center;
 }
 
+#intro{
+    padding: .5rem;
+}
+
 #intro-head{
     display: flex;
     flex-direction: column;
@@ -318,4 +324,17 @@ code{
     border-radius: .4rem;
     color: #333;
     font-size: .8rem;
+}
+
+#requirements-and-notes{
+    display: flex;
+}
+
+#requirements-and-notes div{
+    width: 50%;
+}
+
+#setup{
+    width: 70%;
+    margin: auto;
 }
