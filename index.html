@@ -9,7 +9,7 @@
     </head>
     <body>
         <nav>
-            <div>RPC URL: <span id="provider">---</span></div>
+            <div>RPC URL: <span id="provider"><small style="color: red;">Cannot connect to harhat node</small></span></div>
             <div>Chain ID: <span id="chain-id">---</span></div>
             <div>Block number: <span id="block-number">---</span></div>
             <div>
@@ -76,7 +76,7 @@
                         <h3>Requirements</h3>
                         <ul>
                             <li>NodeJS. Download <a href="https://nodejs.org/en/download/current">here</a></li>
-                            <li>Hardhat.
+                            <li>Hardhat. (Will be installed alongside dependencies).
                             <li>Solidity compiler (solc). Run <code>npm install -g solc</code></li>
                             <li>Solidity VSCode Extension - for syntax highlighting and code completion.</li>
                             <li>VSCode Live Server Extension by Ritwick Dey.</li>
@@ -85,11 +85,11 @@
 
                         <h3>Set up</h3>
                         <ul>
-                            <li>In your VSCode terminal, clone RivETH's GitHub repo. <code>git clone http://github.com/Temi-Tade/RivETH</code>.</li>
-                            <li>Navigate to the <code>RivETH</code> folder. <code>cd RivETH</code>.</li>
+                            <li>In your terminal or git bash (for windows), download RivETH. <br/><code style="display: block; text-align: center; width: 70%; margin: auto; font-size: .8rem; margin-bottom: .25rem;">curl -L -0 https://github.com/Temi-Tade/RivETH/archive/refs/heads/main.zip --output RivETH.zip && unzip RivETH.zip -d temp && mv temp/RivETH-main/* . && rm -rf temp RivETH.zip</code></li>
+                            <li>Navigate to the <code>RivETH</code> folder. <code>cd RivETH</code> and open it in VSCode.</li>
                             <li>Install dependencies. <code>npm install</code></li>
-                            <li>In your terminal, start a local hardhat node:<pre>npx hardhat node</pre></li>
-                            <li>In a separate terminal, compile the smart contract's solidity code:<pre>solc [FILE_NAME].sol --abi --bin -o ./artifacts/</pre>. Replace [FILE_NAME] with the name of the file you want to compile.</li>
+                            <li>In the <code>RivETH</code> directory in your terminal, start a local hardhat node: <pre>npx hardhat node</pre></li>
+                            <li>In a separate terminal, compile the smart contract's solidity code: <pre>solc [FILE_NAME].sol --abi --bin -o ./artifacts/</pre>. Replace [FILE_NAME] with the name of the file you want to compile.</li>
                             <li>Start VSCode live server extension to open RivETH in your browser.</li>
                         </ul>
 
@@ -163,7 +163,11 @@ const txs = [];
 const functions = [];
     
 window.onload = async function () {
-    await loadData();
+    try {
+        await loadData();
+    } catch (error) {
+        CREATE_MODAL(`${new Error(error).message}. Cannot connect, is the node running?`);
+    }
 }
 
 document.querySelector("#contract-name").oninput = function (input) {

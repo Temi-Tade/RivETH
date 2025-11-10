@@ -47,13 +47,13 @@ button:disabled{
 input{
     padding: .35rem;
     border-radius: .4rem;
-    border: 1px solid;
+    border: 1.5px solid #777;
     display: inline-block;
 }
 
 input:focus{
     outline-offset: .25rem;
-    box-shadow: 0 0 2px 2px #3337;
+    box-shadow: 0 0 0 2px #1117;
 }
 
 nav{
@@ -63,6 +63,10 @@ nav{
     align-items: center;
     box-shadow: 0 0 2px 2px #3333;
     width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background-color: #fff;
 }
 
 nav div{
@@ -230,18 +234,12 @@ td:nth-child(2){
     word-break: break-all;
 }
 /* 
-ether input field /
-result for each button /
 toast 
-change signers /
 let addy persist after tx /
-txData for interactions
 change signers for interactions /
 robust error handling 
 theme
-check if node is running
-icons
-
+handle sending ETH to non-payable functions
 */
 
 output{
@@ -279,7 +277,7 @@ output{
 
 #modal p{
     padding: .25rem;
-    /* word-break: break-all; */
+    word-break: break-all;
     font-family: monospace;
     color: #f00a;
     font-weight: bold;
@@ -300,6 +298,7 @@ output{
 
 #intro ul li{
     padding: .125rem;
+    font-size: .85rem;
 }
 
 pre{
@@ -309,6 +308,7 @@ pre{
     border-radius: .4rem;
     display: inline;
     color: #333;
+    font-size: .8rem;
 }
 
 code{
@@ -317,4 +317,5 @@ code{
     padding: .25rem;
     border-radius: .4rem;
     color: #333;
+    font-size: .8rem;
 }
