@@ -69,7 +69,7 @@
                 <div id="intro">
                     <div id="intro-head">
                         <h1>RivETH</h1>
-                        <p><small><em>A local, web-based Ethereum Smart Contract development toolkit.</em></small></p>
+                        <p><small><em>A local, web-based, open source Ethereum Smart Contract development toolkit.</em></small></p>
                     </div>
 
                     <div>
@@ -96,16 +96,28 @@
                             </div>
                         </div>
 
-                        <div id="setup">
-                            <h3>Set up</h3>
-                            <ul>
-                                <li>In your terminal or git bash (for windows), download RivETH. <br/><code style="display: block; text-align: center; width: 70%; margin: auto; font-size: .8rem; margin-bottom: .25rem;">curl -L -0 https://github.com/Temi-Tade/RivETH/archive/refs/heads/main.zip --output RivETH.zip && unzip RivETH.zip -d temp && mv temp/RivETH-main/* . && rm -rf temp RivETH.zip</code></li>
-                                <li>Navigate to the <code>RivETH</code> folder. <code>cd RivETH</code> and open it in VSCode.</li>
-                                <li>Install dependencies. <code>npm install</code></li>
-                                <li>In the <code>RivETH</code> directory in your terminal, start a local hardhat node: <pre>npx hardhat node</pre></li>
-                                <li>In a separate terminal, compile the smart contract's solidity code: <pre>solc [FILE_NAME].sol --abi --bin -o ./artifacts/</pre>. Replace [FILE_NAME] with the name of the file you want to compile.</li>
-                                <li>Start VSCode live server extension to open RivETH in your browser.</li>
-                            </ul>
+                        <div id="setup-and-support">
+                            <div id="setup">
+                                <h3>Set up</h3>
+                                <ul>
+                                    <li>In your terminal or git bash (for windows), download RivETH. <br/><code style="display: block; text-align: center; width: 70%; margin: auto; font-size: .8rem; margin-bottom: .25rem;">curl -L -0 https://github.com/Temi-Tade/RivETH/archive/refs/heads/main.zip --output RivETH.zip && unzip RivETH.zip -d temp && mv temp/RivETH-main/* . && rm -rf temp RivETH.zip</code></li>
+                                    <li>Navigate to the <code>RivETH</code> folder. <code>cd RivETH</code> and open it in VSCode.</li>
+                                    <li>Install dependencies. <code>npm install</code></li>
+                                    <li>In the <code>RivETH</code> directory in your terminal, start a local hardhat node: <pre>npx hardhat node</pre></li>
+                                    <li>In a separate terminal, compile the smart contract's solidity code: <pre>solc [FILE_NAME].sol --abi --bin -o ./artifacts/</pre>. Replace [FILE_NAME] with the name of the file you want to compile.</li>
+                                    <li>Start VSCode live server extension to open RivETH in your browser.</li>
+                                </ul>
+                            </div>
+
+                            <div id="support">
+                                <h3>Support RivETH</h3>
+                                <p style="font-size: .85rem;">RivETH is an open source project that allow new web3 developers quickly prototype, deploy and interact with Ethereum Smart Contracts right inside the browser. RivETH is not meant to be the final stop but a starting point and a minimalistic development enviroment for beginners and professionals alike. After installation, every feature can be used offline! Ways you can support:</p>
+                                <ul>
+                                    <li><a href="https://github.com/Temi-Tade/RivETH">Star</a> the GitHub repo.</li>
+                                    <li>Submitting an issue on <a href="https://github.com/Temi-Tade/RivETH">GitHub.</a></li>
+                                    <li>Donating to RivETH. <button onclick="DONATE()">Donate</button></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -384,9 +396,8 @@ document.querySelector("#deploy").onclick = async function() {
                     } else {
                         const signer = await provider.getSigner(document.querySelector("#accounts").selectedIndex);
                         const contractWithSigner = contract.connect(signer);
-                        console.log(signer);
-                        
                         const txOptions = {};
+                        
                         if (btn.classList.contains("payable") && BigInt(document.querySelector("#ether").value) !== 0) {
                             txOptions.value = BigInt(document.querySelector("#ether").value).toString();
                         }
@@ -398,6 +409,10 @@ document.querySelector("#deploy").onclick = async function() {
                             txData.maxFeePerGas = contractTxResponse.maxFeePerGas;
                         }
 
+                        sessionStorage.setItem("RivETHSessionData", JSON.stringify({
+                            lastAccount: document.querySelector("#accounts").value
+                        }));
+
                         getTxData(txData);
                         await loadData();
                     }
@@ -408,10 +423,6 @@ document.querySelector("#deploy").onclick = async function() {
                         if (typeof result  === "undefined") result = "";
                         resultElement.innerHTML = typeof result === "string" ? result.trim() : result;
                     }
-
-                    sessionStorage.setItem("RivETHSessionData", JSON.stringify({
-                        lastAccount: document.querySelector("#accounts").value
-                    }));
                 } catch (error) {
                         CREATE_MODAL(new Error(error).message);
                 }

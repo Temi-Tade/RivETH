@@ -25,3 +25,12 @@ function CREATE_MODAL(content) {
         }
     }
 }
+
+function DONATE() {
+    CREATE_MODAL(`
+        <div id="donate">
+            <h4>Thank you for supporting RivETH, together, we can build a community of web3 enthusiasts who are serious about security and growth!</h4>
+            <p>Donations can be sent to: (ERC20)</p>
+        </div>
+    `);
+}

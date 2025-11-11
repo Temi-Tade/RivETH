@@ -2,7 +2,7 @@
     padding: 0;
     margin: 0;
     box-sizing: border-box;
-    font-family: "Lexend", sans-serif;
+    font-family: "Lexend", src("./assets/wlptgwvFAVdoq2_F94zlCfv0bz1WCzsWzLdneg.woff2"), sans-serif;
 }
 
 *:focus{
@@ -21,7 +21,7 @@
 
 html{
     height: 100dvh;
-    font-family: "Lexend", sans-serif;
+    font-family: "Lexend", src("./assets/wlptgwvFAVdoq2_F94zlCfv0bz1WCzsWzLdneg.woff2"), sans-serif;
     scroll-behavior: smooth;
 }
 
@@ -197,7 +197,7 @@ select{
 
 #tx-details {
     width: 100%;
-    padding-top: 1rem;
+    padding-top: .5rem;
 }
 
 #tx-details #details-wrap{
@@ -294,6 +294,7 @@ output{
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-bottom: .5rem;
 }
 
 #intro ul {
@@ -326,15 +327,30 @@ code{
     font-size: .8rem;
 }
 
-#requirements-and-notes{
+#requirements-and-notes, #setup-and-support{
     display: flex;
 }
 
-#requirements-and-notes div{
+#requirements-and-notes div, #setup-and-support div{
     width: 50%;
 }
 
 #setup{
     width: 70%;
     margin: auto;
+}
+
+#intro h3{
+    text-align: center;
+}
+
+#intro button {
+    background-color: transparent;
+    padding: .125rem;
+    text-decoration: underline;
+    color: #0075d4;
+}
+
+#donate , #donate p{
+    color: #333;
 }
