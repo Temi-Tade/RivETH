@@ -1,6 +1,6 @@
 # RivETH
 
-## _A local, web-based Ethereum Smart Contract development toolkit._
+## _A local, web-based, open source Ethereum Smart Contract development toolkit._
 ### Requirements
 - NodeJS. Download <a href="https://nodejs.org/en/download/current">here</a>
 - Hardhat.
