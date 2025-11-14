@@ -9,7 +9,10 @@ contract GoFundMe {
     address[] public listOfFunders;
     mapping(address funder => uint256 amount) public fundersToAmount;
 
-    error GoFundMe_BelowMinETH();
+    error GoFundMe__BelowMinETH();
+    error GoFundMe__NotOwner();
+    error GoFundMe__WithdrawError();
+    error GoFundMe__ZeroBalanceError();
     
     constructor() {
         owner = msg.sender;
@@ -25,12 +28,40 @@ contract GoFundMe {
 
     function fund() public payable {
         if (getConversionRate(msg.value) < MINIMUM_USD) {
-            revert GoFundMe_BelowMinETH();
+            revert GoFundMe__BelowMinETH();
         }
 
         listOfFunders.push(msg.sender);
         fundersToAmount[msg.sender] += msg.value;
         balance += msg.value;
+    }
+
+    function withdraw() public onlyOwner returns (bool) {
+        /* 
+        - set balances to zero
+        - withdraw
+        - return true on success
+        */
+        uint256 contractBalance = uint256(address(this).balance);
+        if (contractBalance == 0) {
+            revert GoFundMe__ZeroBalanceError();
+        }
+        
+        (bool success, ) = msg.sender.call{value: contractBalance}("");
+        if (!success) {
+            revert GoFundMe__WithdrawError();
+        }
+
+        listOfFunders = new address[](0);
+
+        return true;
+    }
+
+    modifier onlyOwner {
+        if (msg.sender != owner) {
+            revert GoFundMe__NotOwner(); 
+        }
+        _;
     }
 
     receive() external payable {

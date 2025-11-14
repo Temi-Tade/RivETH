@@ -58,7 +58,7 @@
                     <p id="contract-balance" style="display: none;"></p>
                     <ul>
                         <p>
-                            <small><em>No deployment found</em></small>
+                            <small><em>No deployment found. First compile a contract and load it into RivETH.</em></small>
                         </p>
                     </ul>
                 </div>
@@ -78,11 +78,12 @@
                                 <h3>Requirements</h3>
                                 <ul>
                                     <li>NodeJS. Download <a href="https://nodejs.org/en/download/current">here</a></li>
-                                    <li>Hardhat. (Will be installed alongside dependencies).
+                                    <li>Hardhat.
                                     <li>Solidity compiler (solc). Run <code>npm install -g solc</code></li>
                                     <li>Solidity VSCode Extension - for syntax highlighting and code completion.</li>
                                     <li>VSCode Live Server Extension by Ritwick Dey.</li>
-                                    <small><em style="color: red;">Verify publishers before installing any extension.</em></small>
+                                    <small><em style="color: red;">Verify publishers before installing any extension.</em></small><br>
+                                    <small><em>Solc and Hardhat will be installed alongside the dependencies.</em></small>
                                 </ul>
                             </div>
 
@@ -104,7 +105,7 @@
                                     <li>Navigate to the <code>RivETH</code> folder. <code>cd RivETH</code> and open it in VSCode.</li>
                                     <li>Install dependencies. <code>npm install</code></li>
                                     <li>In the <code>RivETH</code> directory in your terminal, start a local hardhat node: <pre>npx hardhat node</pre></li>
-                                    <li>In a separate terminal, compile the smart contract's solidity code: <pre>solc [FILE_NAME].sol --abi --bin -o ./artifacts/</pre>. Replace [FILE_NAME] with the name of the file you want to compile.</li>
+                                    <li>In a separate terminal and in your working directory, compile the smart contract's solidity code: <pre>./compile.sh [FILE_NAME].sol</pre>. Replace [FILE_NAME] with the name of the file you want to compile.</li>
                                     <li>Start VSCode live server extension to open RivETH in your browser.</li>
                                 </ul>
                             </div>
@@ -175,8 +176,11 @@ const txData = {
     from: undefined,
     data: undefined,
     value: undefined,
-    gasLimit: undefined,
     gasPrice: undefined,
+    gasLimit: undefined,
+    gasUsed: undefined,
+    maxFeePerGas: undefined,
+    maxPriorityFeePerGas: undefined
 }
 
 const txs = [];
@@ -207,7 +211,7 @@ async function loadData() {
     
         document.querySelector("#block-number").innerText = blockNumber;
         document.querySelector("#chain-id").innerText = network.chainId;
-        document.querySelector("#provider").innerText = _provider;
+        document.querySelector("#provider").innerHTML = ` ${_provider}<small style='color: #11fd34'>(Connected)</small>`;
         document.querySelector("#accounts").innerHTML = "";
     
         accounts.forEach(async (account) => {
@@ -335,7 +339,7 @@ function getTxData(transactionData) {
         document.getElementById(transactionData.hash).innerHTML += `
             <tr>
                 <td>${key}</td>
-                <td>${(key !== "value") && (key !== "gasPrice") && (key !== "gasLimit") && (key !== "maxFeePerGas") && (key !== "maxPriorityFeePerGas") ? transactionData[key] : `${transactionData[key]} wei`}</td>
+                <td>${(key !== "value") && (key !== "gasPrice") && (key !== "gasLimit") && (key !== "maxFeePerGas") && (key !== "maxPriorityFeePerGas") && (key !== "gasUsed") ? transactionData[key] : `${transactionData[key]} wei`} ${key === "gasUsed" ? `<em> (${(Number(transactionData[key])*100)/Number(transactionData["gasLimit"])}` + "%)</em>" : ""}</td>
             </tr>
         `
     }
@@ -366,11 +370,14 @@ document.querySelector("#deploy").onclick = async function() {
             contract = await factory.deploy(deploymentOverrides);
             await contract.waitForDeployment();
         }
+        const txResponse = await contract.deploymentTransaction();
+        const txReceipt = await txResponse.wait();
 
         for (const key in txData) {
-            txData[key] = await contract.deploymentTransaction()[key];
+            txData[key] = txResponse[key];
         }
 
+        txData.gasUsed = txReceipt.gasUsed;
         txData.contractAddress = await contract.getAddress();
         contractData.address = await contract.getAddress();
         txs.push(await txData);
@@ -403,11 +410,13 @@ document.querySelector("#deploy").onclick = async function() {
                         }
                         
                         const contractTxResponse = await contractWithSigner[btn.dataset.name](...args, txOptions);
+                        const txReceipt = await contractTxResponse.wait();
+                        console.log(txReceipt);
+                        
                         for (const key in txData) {
                             txData[key] = contractTxResponse[key];
-                            txData.maxPriorityFeePerGas = contractTxResponse.maxPriorityFeePerGas;
-                            txData.maxFeePerGas = contractTxResponse.maxFeePerGas;
                         }
+                        txData.gasUsed = txReceipt.gasUsed;
 
                         sessionStorage.setItem("RivETHSessionData", JSON.stringify({
                             lastAccount: document.querySelector("#accounts").value

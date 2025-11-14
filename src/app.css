@@ -2,7 +2,7 @@
     padding: 0;
     margin: 0;
     box-sizing: border-box;
-    font-family: "Lexend", src("./assets/wlptgwvFAVdoq2_F94zlCfv0bz1WCzsWzLdneg.woff2"), sans-serif;
+    font-family: "Lexend", sans-serif;
 }
 
 *:focus{
@@ -21,7 +21,7 @@
 
 html{
     height: 100dvh;
-    font-family: "Lexend", src("./assets/wlptgwvFAVdoq2_F94zlCfv0bz1WCzsWzLdneg.woff2"), sans-serif;
+    font-family: "Lexend", sans-serif;
     scroll-behavior: smooth;
 }
 
