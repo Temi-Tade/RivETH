@@ -5,7 +5,7 @@
 - NodeJS. Download <a href="https://nodejs.org/en/download/current">here</a>
 - Hardhat.
 - Solidity compiler (solc).
-- Solidity VSCode Extension - for syntax highlighting and code completion
+- Solidity VSCode Extension by Juan Blanco or Nomic Foundation.
 - VSCode Live Server Extension by Ritwick Dey.
 
 **_Solc and Hardhat will be installed alongside the dependencies_**
@@ -13,7 +13,8 @@
 **_Verify publishers before installing any extension._**
 
 ### Set up
-- In your VSCode terminal, clone RivETH's GitHub repo. <pre>curl -L -0 https://github.com/Temi-Tade/RivETH/archive/refs/heads/main.zip --output RivETH.zip && unzip RivETH.zip -d temp && mv temp/RivETH-main/* . && rm -rf temp RivETH.zip
+- In your terminal or git bash (for windows), create a new working directory: <pre>mkdir solidity-smart-contract-practice</pre>
+- Download RivETH <pre>curl -L -0 https://github.com/Temi-Tade/RivETH/archive/refs/heads/main.zip --output RivETH.zip && unzip RivETH.zip -d temp && mv temp/RivETH-main/* . && rm -rf temp RivETH.zip
 </pre>
 - Navigate to the <code>RivETH</code> folder. <code>cd RivETH</code> and open it on VSCode.
 - Install dependencies: <pre>npm install</pre>
