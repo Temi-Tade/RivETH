@@ -9,7 +9,7 @@ contract GoFundMe {
     address[] public listOfFunders;
     mapping(address funder => uint256 amount) public fundersToAmount;
 
-    error GoFundMe__BelowMinETH();
+    error GoFundMe__BelowMinETH(string message);
     error GoFundMe__NotOwner();
     error GoFundMe__WithdrawError();
     error GoFundMe__ZeroBalanceError();
@@ -28,7 +28,7 @@ contract GoFundMe {
 
     function fund() public payable {
         if (getConversionRate(msg.value) < MINIMUM_USD) {
-            revert GoFundMe__BelowMinETH();
+            revert GoFundMe__BelowMinETH("Not enough balance");
         }
 
         listOfFunders.push(msg.sender);

@@ -13,8 +13,7 @@
 **_Verify publishers before installing any extension._**
 
 ### Set up
-- In your VSCode terminal, clone RivETH's GitHub repo. <pre>curl -L -0 https://github.com/Temi-Tade/RivETH/archive/refs/heads/main.zip --output RivETH.z
-ip && unzip RivETH.zip -d temp && mv temp/RivETH-main/* . && rm -rf temp RivETH.zip
+- In your VSCode terminal, clone RivETH's GitHub repo. <pre>curl -L -0 https://github.com/Temi-Tade/RivETH/archive/refs/heads/main.zip --output RivETH.zip && unzip RivETH.zip -d temp && mv temp/RivETH-main/* . && rm -rf temp RivETH.zip
 </pre>
 - Navigate to the <code>RivETH</code> folder. <code>cd RivETH</code> and open it on VSCode.
 - Install dependencies: <pre>npm install</pre>

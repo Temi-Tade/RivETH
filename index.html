@@ -44,7 +44,7 @@
                                 </div>
                             </div>
 
-                            <p>Deploy <br><small></small></p>
+                            <p>Deploy <span id="name-of-compiled-contract"></span><br><small></small></p>
                             <div style="display: flex; justify-content: space-around;">
                                 <input type="text" id="deploy-params" autocomplete="off" autocorrect="off">
                                 <button id="deploy" disabled>Deploy</button>
@@ -152,7 +152,8 @@ import { ethers } from "ethers";
 
 if (!sessionStorage.getItem("RivETHSessionData")) {
     sessionStorage.setItem("RivETHSessionData", JSON.stringify({
-        lastAccount: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
+        lastAccount: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+        lastDeployedContract: ""
     }));
 }
 
@@ -242,6 +243,8 @@ async function getContractBalance(contractAddress) {
 
 document.querySelector("#load-contract").onclick = async function(e) {
     try {
+        document.querySelector("#deploy-params").disabled = true;
+
         const abi = fetch(`http://127.0.0.1:5500/artifacts/${e.target.previousElementSibling.value.trim()}.abi`);
         const bin = fetch(`http://127.0.0.1:5500/artifacts/${e.target.previousElementSibling.value.trim()}.bin`);
             
@@ -276,6 +279,8 @@ document.querySelector("#load-contract").onclick = async function(e) {
             } else {
                 document.querySelector("#deploy-params").disabled = false;
             }
+
+            document.querySelector("#name-of-compiled-contract").textContent = document.querySelector("#contract-name").value.trim();
     
             constructorParams.forEach(param => {
                 document.querySelector("#deploy-params").placeholder += `${param}, `
@@ -290,6 +295,18 @@ document.querySelector("#load-contract").onclick = async function(e) {
     }
 }
 
+function createInteractionButtons(entry) {    
+    document.querySelector("#interaction-panel ul").innerHTML += `
+        <li>
+            <div class='wrap'>
+                <div><button data-name="${entry.name || entry.type}" id="${entry.name || entry.type}" class='${entry.type !== "receive" && entry.type !== "fallback" ? "contract-function" : ""} ${entry.stateMutability}'>${entry.name || entry.type}</button></div>
+                <p></p>
+            </div>
+            <output id="result-${entry.name || entry.type}"></output>
+        </li>
+    `;
+}
+
 function getFunctions() {
     functions.length = 0;
     const contractABIJSON = JSON.parse(contractData.abi);
@@ -297,7 +314,7 @@ function getFunctions() {
         
     contractABIJSON.forEach((entry) => {
         if (
-            entry.type === "function" &&  
+            entry.type === "function" &&
             entry.name && 
             (
                 entry.stateMutability === 'view' || 
@@ -305,21 +322,23 @@ function getFunctions() {
                 entry.stateMutability === 'nonpayable' || 
                 entry.stateMutability === 'payable'
             )
-            ) {
-                functions.push(entry);
-                document.querySelector("#interaction-panel ul").innerHTML += `
-                    <li>
-                        <div class='wrap'>
-                            <div><button data-name="${entry.name}" class='contract-function ${entry.stateMutability}'>${entry.name}</button></div>
-                            <p></p>
-                        </div>
+        ) {
+            functions.push(entry);
+            createInteractionButtons(entry);
+        }
+    })
 
-                        <output id="result-${entry.name}"></output>
-                    </li>
-                `
-            }
-        })
-
+    contractABIJSON.forEach(entry => {
+        if (entry.type === "receive" || entry.type === "fallback") {
+            createInteractionButtons(entry);
+        }
+        
+        if (entry.type === "fallback") {
+            document.querySelector("#fallback").parentElement.nextElementSibling.innerHTML = `<input placeholder="Message" id="fallback-message" autocomplete="off" spellcheck="false"/>`
+        }
+    })
+    
+    // create inputs for functions with params
     functions.map((func, ind) => {
         if (func.name && func.inputs.length !== 0) {
             func.inputs.map(f => {
@@ -344,6 +363,24 @@ function getTxData(transactionData) {
         `
     }
     document.getElementById(transactionData.hash).scrollIntoView();
+}
+
+async function handleFallbackAndReceiveTxs(response, receipt) {
+    for (const key in txData) {
+        txData[key] = response[key];
+    }
+    txData.gasUsed = receipt.gasUsed;
+
+    let sessionData = JSON.parse(sessionStorage.getItem("RivETHSessionData"));
+    sessionStorage.setItem("RivETHSessionData", JSON.stringify({
+        ...sessionData,
+        lastAccount: document.querySelector("#accounts").value
+    }));
+
+    txs.push(await txData);
+
+    getTxData(txData);
+    await loadData();
 }
     
 document.querySelector("#deploy").onclick = async function() {
@@ -386,12 +423,51 @@ document.querySelector("#deploy").onclick = async function() {
         getFunctions();
         
         sessionStorage.setItem("RivETHSessionData", JSON.stringify({
-            lastAccount: document.querySelector("#accounts").value
+            lastAccount: document.querySelector("#accounts").value,
+            lastDeployedContract: txData.contractAddress
         }));
+
+        JSON.parse(contractData.abi).forEach(entry => {
+            if (entry.type === "receive" || entry.type === "fallback") {
+                document.querySelector("#fallback").onclick = async function() {
+                    try {
+                        const signer = await provider.getSigner(document.querySelector("#accounts").selectedIndex);
+                        
+                        const fallbackTx = await signer.sendTransaction({
+                            to: txData.contractAddress || JSON.parse(sessionStorage.getItem("RivETHSessionData")).lastDeployedContract,
+                            value: BigInt(document.querySelector("#ether").value.toString()),
+                            data: ethers.toUtf8Bytes(document.querySelector("#fallback-message").value.trim())
+                        });
+                        const txReceipt = await fallbackTx.wait();
+                        handleFallbackAndReceiveTxs(fallbackTx, txReceipt);
+                    } catch (error) {
+                        CREATE_MODAL(new Error(error).message);
+                    }
+                } 
+        
+                document.querySelector("#receive").onclick = async function() {
+                    try {
+                        const signer = await provider.getSigner(document.querySelector("#accounts").selectedIndex);
+
+                        const receiveTx = await signer.sendTransaction({
+                            to: txData.contractAddress || JSON.parse(sessionStorage.getItem("RivETHSessionData")).lastDeployedContract,
+                            value: BigInt(document.querySelector("#ether").value.toString()),
+                        });
+                        const txReceipt = await receiveTx.wait();
+                        handleFallbackAndReceiveTxs(receiveTx, txReceipt);
+                    } catch (error) {
+                        CREATE_MODAL(new Error(error).message);
+                    }
+                };
+            }
+        });
+
 
         [...document.querySelectorAll(".contract-function")].forEach((btn, ind) => {
             btn.onclick = async function() {
                 try {
+                    const signer = await provider.getSigner(document.querySelector("#accounts").selectedIndex);
+
                     let args = Array.from(btn.parentElement.nextElementSibling.querySelectorAll("input")).map(input => {
                         return input.value.trim();
                     });
@@ -411,16 +487,20 @@ document.querySelector("#deploy").onclick = async function() {
                         
                         const contractTxResponse = await contractWithSigner[btn.dataset.name](...args, txOptions);
                         const txReceipt = await contractTxResponse.wait();
-                        console.log(txReceipt);
                         
                         for (const key in txData) {
                             txData[key] = contractTxResponse[key];
                         }
                         txData.gasUsed = txReceipt.gasUsed;
 
+                        let sessionData = JSON.parse(sessionStorage.getItem("RivETHSessionData"));
+
                         sessionStorage.setItem("RivETHSessionData", JSON.stringify({
-                            lastAccount: document.querySelector("#accounts").value
+                            ...sessionData,
+                            lastAccount: document.querySelector("#accounts").value,
                         }));
+
+                        txs.push(await txData);
 
                         getTxData(txData);
                         await loadData();
