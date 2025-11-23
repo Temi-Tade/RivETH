@@ -1,0 +1,61 @@
+html, nav {
+    background-color: #232323;
+    color: #fff;
+}
+
+code, pre {
+    color: #ddd;
+    background-color: #555;
+}
+
+a {
+    color: #0075d4;
+}
+
+input {
+    border-color: #fff;
+    color: #fff;
+}
+
+input:focus{
+    outline-offset: .25rem;
+    box-shadow: 0 0 0 2px #eee7;
+}
+
+#load-area{
+    background-color: #7777;
+}
+
+::placeholder{
+    color: #cccc;
+}
+
+#copy-btn:before{
+    background-color: #aaa;
+    box-shadow: 0 0 2px 1px #aaaa;
+}
+
+#modal {
+    background-color: #232323;
+}
+
+label{
+    background-color: #333;
+}
+
+::-webkit-scrollbar-thumb{
+    background-color: #ccc7;
+}
+
+select, option {
+    background-color: #555;
+    color: #fff;
+}
+
+#donate , #donate p{
+    color: #fff;
+}
+
+#close-btn{
+    color: #fff;
+}

@@ -69,6 +69,14 @@ nav{
     background-color: #fff;
 }
 
+header{
+    padding: .125rem;
+}
+
+img{
+    border-radius: .4rem;
+}
+
 nav div{
     padding: .25rem;
     display: grid;
@@ -120,6 +128,7 @@ select{
 #load-area{
     background-color: #ccc7;
     padding: .25rem;
+    border-radius: 0 .4rem .4rem 0;
 }
 
 #constructor{
@@ -174,7 +183,7 @@ select{
 
 #interaction-panel ul {
     list-style-type: none;
-    height: 20rem;
+    height: 25rem;
     overflow-y: auto;
 }
 
@@ -311,7 +320,7 @@ output{
 pre{
     background-color: #ccc7;
     font-family: monospace;
-    padding: .25rem;
+    padding: .125rem;
     border-radius: .4rem;
     display: inline;
     color: #333;
@@ -321,7 +330,7 @@ pre{
 code{
     background-color: #ccc7;
     font-family: monospace;
-    padding: .25rem;
+    padding: .125rem;
     border-radius: .4rem;
     color: #333;
     font-size: .8rem;
@@ -353,4 +362,42 @@ code{
 
 #donate , #donate p{
     color: #333;
+}
+
+#close-btn{
+    font-size: 1.2rem;
+}
+
+/* theme toggler style */
+input[type=checkbox] {
+    display: none !important;
+}
+
+label{
+    width: 3rem;
+    height: 1.5rem;
+    border-radius: 1rem;
+    position: relative;
+    background-color: #ccc7;
+    cursor: pointer;
+    box-shadow: inset 0 0 2px 2px #aaa7;
+}
+
+input[type=checkbox]+span{
+    position: absolute;
+    display: inline-block;
+    background-color: #777;
+    width: 1.2rem;
+    height: 1.2rem;
+    border-radius: 50%;
+    left: .125rem;
+    top: .15375rem;
+    transition: .25s;
+}
+
+input[type=checkbox]:checked+span{
+    background-color: #0075d4;
+    left: calc(100% - (1.2rem + .125rem));
+    /* right: 25rem; */
+    
 }

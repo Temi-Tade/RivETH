@@ -34,3 +34,21 @@ function DONATE() {
         </div>
     `);
 }
+
+function TOGGLE_THEME(e) {
+    let sessionData = JSON.parse(localStorage.getItem("RivETHSessionData"));
+
+    if (e.checked) {
+        document.querySelector("#csslink").href = "./src/darkmode.css";
+        localStorage.setItem("RivETHSessionData", JSON.stringify({
+            ... sessionData,
+            theme: "dark"
+        }));
+    } else {
+        document.querySelector("#csslink").href = "";
+        localStorage.setItem("RivETHSessionData", JSON.stringify({
+            ... sessionData,
+            theme: "light"
+        }));
+    }
+}
