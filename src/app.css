@@ -23,6 +23,7 @@ html{
     height: 100dvh;
     font-family: "Lexend", sans-serif;
     scroll-behavior: smooth;
+    transition: .25s;
 }
 
 body{
@@ -273,7 +274,6 @@ output{
     background-color: transparent;
     font-size: 1.2rem;
     font-weight: bold;
-    color: #333;
     padding: .125rem;
 }
 
@@ -365,7 +365,8 @@ code{
 }
 
 #close-btn{
-    font-size: 1.2rem;
+    color: #333;
+    font-size: 1.75rem !important;
 }
 
 /* theme toggler style */
@@ -400,4 +401,24 @@ input[type=checkbox]:checked+span{
     left: calc(100% - (1.2rem + .125rem));
     /* right: 25rem; */
     
+}
+
+.converter-field {
+    padding: .5rem;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.converter-field input {
+    width: 90%;
+    appearance: none;
+}
+
+.converter-field label {
+    display: block;
+    border-radius: 0;
+    color: #333;
+    box-shadow: none;
+    background-color: transparent;
 }

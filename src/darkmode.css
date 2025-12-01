@@ -39,6 +39,10 @@ input:focus{
     background-color: #232323;
 }
 
+#modal p {
+    color: #fffe;
+}
+
 label{
     background-color: #333;
 }
@@ -58,4 +62,8 @@ select, option {
 
 #close-btn{
     color: #fff;
+}
+
+.converter-field label {
+    color: #fffe;
 }

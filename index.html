@@ -16,7 +16,6 @@
             </header>
 
             <div>RPC URL: <span id="provider"><small style="color: red;">Cannot connect to Hardhat node</small></span></div>
-            <div>Chain ID: <span id="chain-id">---</span></div>
             <div>
                 Accounts:<br/>
                 <p style="display: flex;">
@@ -29,12 +28,15 @@
             </div>
             <div>
                 Dark mode:
-                <div>
+                <p style="display: grid; place-items: center;">
                     <label>
                         <input type="checkbox" id="theme-toggler" onchange="TOGGLE_THEME(this)">
                         <span></span>
                     </label>
-                </div>
+                </p>
+            </div>
+            <div>
+                <button id="eth-converter-btn">Converter</button>
             </div>
         </nav>
 
@@ -227,7 +229,6 @@ async function loadData() {
         const network = await provider._detectNetwork();
         const blockNumber = await provider.getBlockNumber();
     
-        document.querySelector("#chain-id").innerText = network.chainId;
         document.querySelector("#provider").innerHTML = ` ${_provider}<small style='color: #11fd34'>(Connected)</small>`;
         document.querySelector("#accounts").innerHTML = "";
     
@@ -290,7 +291,7 @@ document.querySelector("#load-contract").onclick = async function(e) {
             contractData.hasConstructor = true;
     
             JSON.parse(contractData.abi)[0].inputs.forEach(param => {
-                constructorParams.push(param.name);
+                constructorParams.push(param);
             });
                 
             document.querySelector("#constructor").style.display = "block";
@@ -308,7 +309,7 @@ document.querySelector("#load-contract").onclick = async function(e) {
             document.querySelector("#name-of-compiled-contract").textContent = document.querySelector("#contract-name").value.trim();
     
             constructorParams.forEach(param => {
-                document.querySelector("#deploy-params").placeholder += `${param}, `
+                document.querySelector("#deploy-params").placeholder += `${param.type} ${param.name}, `
             });
     
             if (JSON.parse(contractData.abi)[0].stateMutability === "payable") {
@@ -415,17 +416,17 @@ document.querySelector("#deploy").onclick = async function() {
 
         let deployParams = "";
         if (contractData.hasConstructor) {
-            deployParams = document.querySelector("#deploy-params").value.trim().split(",");
-
-        if (contractData.isConstructorpayable) {
+            deployParams = (document.querySelector("#deploy-params").value.trim().split(","));
+            
+            if (contractData.isConstructorpayable) {
                 deploymentOverrides.value = BigInt(document.querySelector("#ether").value.toString());
             }
         }
-
+        
         let contract;
         const factory = new ethers.ContractFactory(contractData.abi, contractData.bytecode, signer);
-
-        if (contractData.constructorParams > 1) {
+        
+        if (contractData.constructorParams >= 1) {
             contract = await factory.deploy(...deployParams, deploymentOverrides);
             await contract.waitForDeployment();
         } else {
@@ -557,6 +558,39 @@ document.querySelector("#deploy-params").oninput = function(e) {
         } else {
             document.querySelector("#deploy").disabled = true;
         }
+    }
+}
+
+document.querySelector("#eth-converter-btn").onclick = function() {
+    CREATE_MODAL(`
+        <h3>ETH Converter</h3>
+        <div>
+            <div class='converter-field'>
+                <label>WEI </label>
+                <input type="number" min="0" value="1" id="wei">
+            </div>
+
+            <div class='converter-field'>
+                <label>GWEI </label>
+                <input type="number" min="0" value=${ethers.formatUnits("1", "gwei")} id="gwei" readonly>
+            </div>
+
+            <div class='converter-field'>
+                <label>ETH </label>
+                <input type="number" min="0" value=${ethers.formatEther("1")} id="ethvalue" readonly>
+            </div>
+        </div>
+    `);
+
+    document.querySelector("#wei").oninput = function(e) {
+        const weiValue = e.target.value;
+        if (weiValue === "") {
+            return;
+        } else if (weiValue < 1) {
+            return;
+        }
+        document.querySelector("#gwei").value = ethers.formatUnits(weiValue.toString(), "gwei");
+        document.querySelector("#ethvalue").value = ethers.formatEther(weiValue.toString());
     }
 }
 </script>
