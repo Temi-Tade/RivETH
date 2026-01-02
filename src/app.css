@@ -293,6 +293,8 @@ output{
     color: #f00a;
     font-weight: bold;
     text-align: center;
+    max-height: 12rem;
+    overflow-y: auto;
 }
 
 #intro{

@@ -46,7 +46,7 @@ contract TokenShop {
             revert TokenShop_ZeroETHSent();
         }
 
-        i_token.mint(msg.sender, amountToMint(msg.value));
+        i_token.mintTokens(msg.sender, amountToMint(msg.value));
     }
 }
 

@@ -63,7 +63,7 @@
                             <p>Deploy <span id="name-of-compiled-contract"></span><br><small></small></p>
                             <div style="display: flex; justify-content: space-around;">
                                 <input type="text" id="deploy-params" autocomplete="off" autocorrect="off">
-                                <button id="deploy" disabled>Deploy</button>
+                                <button id="deploy" disabled accesskey="A">Deploy</button>
                             </div>
                         </div>
                     </div>
@@ -315,6 +315,12 @@ document.querySelector("#load-contract").onclick = async function(e) {
             if (JSON.parse(contractData.abi)[0].stateMutability === "payable") {
                 contractData.isConstructorpayable = true;
             }
+        } else {
+            // alert();
+            document.querySelector("#constructor").style.display = "block";
+            document.querySelector("#deploy").disabled = false;
+            document.querySelector("#deploy-params").disabled = true;
+            document.querySelector("#deploy-params").placeholder = "No constructor found";
         }
     } catch (error) {
         CREATE_MODAL("Error locating compiled contract. Run <pre>solc [FILE_NAME].sol --abi --bin -o ./artifacts/</pre>. Replace [FILE_NAME] with the name of the solidity file you want to compile");
@@ -325,7 +331,7 @@ function createInteractionButtons(entry) {
     document.querySelector("#interaction-panel ul").innerHTML += `
         <li>
             <div class='wrap'>
-                <div><button data-name="${entry.name || entry.type}" id="${entry.name || entry.type}" class='${entry.type !== "receive" && entry.type !== "fallback" ? "contract-function" : ""} ${entry.stateMutability}'>${entry.name || entry.type}</button></div>
+                <div><button data-name="${entry.name || entry.type}" data-outputs=${JSON.stringify(entry.outputs)} id="${entry.name || entry.type}" class='${entry.type !== "receive" && entry.type !== "fallback" ? "contract-function" : ""} ${entry.stateMutability}'>${entry.name || entry.type}</button></div>
                 <p></p>
             </div>
             <output id="result-${entry.name || entry.type}"></output>
@@ -368,7 +374,7 @@ function getFunctions() {
     functions.map((func, ind) => {
         if (func.name && func.inputs.length !== 0) {
             func.inputs.map(f => {
-                [...document.querySelectorAll("#interaction-panel ul li div p")][ind].innerHTML += `<input placeholder="${f.type} ${f.name}" autocomplete="off" spellcheck="false"/>`
+                [...document.querySelectorAll("#interaction-panel ul li div p")][ind].innerHTML += `<input placeholder="${f.type} ${f.name}" data-type="${f.type}" autocomplete="off" spellcheck="false"/>`
             });
         }
     })
@@ -414,9 +420,12 @@ document.querySelector("#deploy").onclick = async function() {
         const signer = await provider.getSigner(document.querySelector("#accounts").selectedIndex);
         const deploymentOverrides = {};
 
-        let deployParams = "";
+        let deployParams = [];
         if (contractData.hasConstructor) {
-            deployParams = (document.querySelector("#deploy-params").value.trim().split(","));
+            document.querySelector("#deploy-params").value.trim().split(", ").forEach(param => {
+                deployParams.push(JSON.parse(param));
+            })
+            console.log(...deployParams.toString().split(", "));
             
             if (contractData.isConstructorpayable) {
                 deploymentOverrides.value = BigInt(document.querySelector("#ether").value.toString());
@@ -488,18 +497,19 @@ document.querySelector("#deploy").onclick = async function() {
             }
         });
 
-
         [...document.querySelectorAll(".contract-function")].forEach((btn, ind) => {
             btn.onclick = async function() {
                 try {
                     const signer = await provider.getSigner(document.querySelector("#accounts").selectedIndex);
 
                     let args = Array.from(btn.parentElement.nextElementSibling.querySelectorAll("input")).map(input => {
-                        return input.value.trim();
+                        return JSON.parse(input.value);
                     });
+
                     const resultElement = btn.parentElement.parentElement.nextElementSibling;
     
                     let result;
+                    
                     if (btn.classList.contains("pure") || btn.classList.contains("view")) {
                         result = await contract[btn.dataset.name](...args);
                     } else {
@@ -553,7 +563,7 @@ document.querySelector("#deploy").onclick = async function() {
 
 document.querySelector("#deploy-params").oninput = function(e) {
     if (contractData.hasConstructor) {
-        if (e.target.value.trim().split(",").length === contractData.constructorParams && e.target.value.trim().split(",")[contractData.constructorParams - 1] !== "") {
+        if (e.target.value.trim().split(", ").length === contractData.constructorParams && e.target.value.trim().split(", ")[contractData.constructorParams - 1] !== "") {
             document.querySelector("#deploy").disabled = false;
         } else {
             document.querySelector("#deploy").disabled = true;
@@ -567,7 +577,7 @@ document.querySelector("#eth-converter-btn").onclick = function() {
         <div>
             <div class='converter-field'>
                 <label>WEI </label>
-                <input type="number" min="0" value="1" id="wei">
+                <input type="number" min="0" value="1" id="wei" autofocus>
             </div>
 
             <div class='converter-field'>
