@@ -25,6 +25,7 @@ contract ERC1155 {
         uint256[] tokenIds,
         uint256[] values
     );
+    event URI(string, uint256 indexed); //
 
     // ---- private variables ---- //
     mapping(uint256 id => mapping(address owner => uint256 balance)) private _balances;

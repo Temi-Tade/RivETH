@@ -36,7 +36,7 @@ contract ERC721Staking is IERC721Receiver {
         require(msg.sender == stakes[id].originalOwner, "Invalid owner");
 
         delete stakes[id];
-        ERC721(nft).safeTransferFrom(address(this), msg.sender, id);
+        ERC721(nft).safeTransferFrom(address(this), msg.sender, id, abi.encode(0));
         // /try using safe transfer from
     }
 }

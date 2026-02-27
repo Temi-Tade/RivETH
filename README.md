@@ -13,7 +13,7 @@
 **_Verify publishers before installing any extension._**
 
 ### Set up
-- In your terminal or git bash (for windows), create a new working directory: <pre>mkdir solidity-smart-contract-practice</pre>
+- In your terminal or git bash (for windows), create a new working directory, for example: <pre>mkdir solidity-smart-contract-practice</pre>
 - Download RivETH <pre>curl -L -0 https://github.com/Temi-Tade/RivETH/archive/refs/heads/main.zip --output RivETH.zip && unzip RivETH.zip -d temp && mv temp/RivETH-main/* . && rm -rf temp RivETH.zip
 </pre>
 - Navigate to the <code>RivETH</code> folder. <code>cd RivETH</code> and open it on VSCode.
@@ -26,6 +26,7 @@
 - You can find pre-written solidity smart contracts in the <code>contracts/</code> folder. Note that these contracts have not been reviewed and are not to be used in production.
 - Do not save or write any file to the <code>artifacts/</code> folder. The solidity compiler will automatically write files to this folder.
 - Use the same name for the solidity file and contract (e.g. <code>MyContract.sol</code> and <code>contract MyContract{...}</code>).
+- To effect changes to a contract after making changes, click the "Load" button and redeploy the contract.
 
 ### How to Contribute
 RivETH is open source, you can help improve it by contributing. To contribute:

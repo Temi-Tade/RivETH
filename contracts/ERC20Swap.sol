@@ -32,8 +32,9 @@ contract ERC20Swap {
     error ERC20Swap__DeployWithMoreETH();
     error ERC20Swap__DepositMoreETH();
     error ERC20Swap__NotEnoughUSDT();
+    error ERC20Swap__DepositERC20();
 
-    event Deposit(address indexed depositor, address indexed owner, uint256 amount);
+    // event Deposit(address indexed depositor, address indexed owner, uint256 amount);
     event Swap(address indexed _from, address indexed _to, uint256 _in, uint256 _out);
 
     constructor(/*string memory _name,*/ ERC20 _usdtContractAddress) payable {
@@ -43,56 +44,46 @@ contract ERC20Swap {
             revert ERC20Swap__DeployWithMoreETH();
         }
 
-        eth_reserve = msg.value;
+        eth_reserve += msg.value;
         i_usdt = ERC20(_usdtContractAddress);
+        ERC20_PRECISION = 10**i_usdt.decimals();
+    }
+
+    modifier checkERC20() {
+        if (i_usdt.balanceOf(address(this)) == 0) {
+            revert ERC20Swap__DepositERC20();
+        }
+        _;
     }
 
     ERC20 private immutable i_usdt;
-    // string internal name;
-    uint256 public constant ETH_DECIMALS = 18;
-    uint256 public constant USDT_DECIMALS = 6;
+    // string private name;
+    uint256 private constant ETH_PRECISION = 1e18;
+    uint256 private immutable ERC20_PRECISION;
 
-    uint256 internal eth_reserve;
-    uint256 internal usdt_reserve;
-    uint256 internal eth_usdt_price = 2_000; // in a real-world scenario, this will be gotten with chainlink
+    uint256 private eth_reserve;
+    uint256 private usdt_reserve;
+    uint256 private eth_usdt_price = 2_000; // in a real-world scenario, this will be gotten with chainlink
 
-    uint256 internal constant CONSTANT_PRODUCT = 10 * 20_000; // starting_eth_reserve * starting_usdt_reserve
-    uint256 internal constant MINIMUM_ETH_DEPOSIT = 0.001 ether;
-    uint256 internal constant MINIMUM_USDT_DEPOSIT = 1000000;
+    uint256 private constant CONSTANT_PRODUCT = 10 * 20_000; // starting_eth_reserve * starting_usdt_reserve
+    uint256 private constant MINIMUM_ETH_DEPOSIT = 0.001 ether;
+    uint256 private constant MINIMUM_USDT_DEPOSIT = 1_000_000;
 
-    function onTransferReceived(
-        address operator,
-        address from,
-        uint256 value,
-        bytes calldata data
-    ) external returns(bytes4) {
-        // check if caller is ERC20
-        require(msg.sender == address(i_usdt), "Caller not ERC20 token");
+    function depositERC20() public {
+        bool ok = i_usdt.transferFrom(msg.sender, address(this), 20000);
+        require(ok, "Deposit failed");
 
-        if (data.length == 0) {
-            // add value to reserve
-            usdt_reserve += value;
-        } else {
-            (, bytes memory _data) = abi.decode(data, (address, bytes));
-
-            if (bytes4(_data) == 0xb3f6145f) {
-                (bool ok, ) = address(this).call(abi.encodeWithSelector(0xb3f6145f, value));
-                require(ok, "low-level swap call failed");
-            }
-        }
-
-        emit Deposit(operator, from, value);
-        return IERC1363Receiver.onTransferReceived.selector;
+        usdt_reserve += 20000;
     }
 
-    function swapEthForUsdt() external payable {
+    function swapEthForUsdt() external payable checkERC20 {
         if(msg.value < MINIMUM_ETH_DEPOSIT) {
             revert ERC20Swap__DepositMoreETH();
         }
         eth_reserve += msg.value;
         
         uint256 initial_usdt_reserve = usdt_reserve;
-        uint256 new_usdt_reserve = (CONSTANT_PRODUCT * 10**ETH_DECIMALS) / eth_reserve;
+        uint256 new_usdt_reserve = (CONSTANT_PRODUCT * ETH_PRECISION) / eth_reserve;
         usdt_reserve = new_usdt_reserve;
 
         uint256 usdtToReceive = initial_usdt_reserve - usdt_reserve;
@@ -103,8 +94,8 @@ contract ERC20Swap {
         require(success, "Swap failed");
     }
 
-    function swapUsdtForEth(uint256 _usdtAmount) external {
-        if (_usdtAmount* 10**USDT_DECIMALS < MINIMUM_USDT_DEPOSIT) {
+    function swapUsdtForEth(uint256 _usdtAmount) external checkERC20 {
+        if (_usdtAmount * ERC20_PRECISION < MINIMUM_USDT_DEPOSIT) {
             revert ERC20Swap__NotEnoughUSDT();
         }
 
@@ -118,7 +109,7 @@ contract ERC20Swap {
 
         uint256 initial_eth_reserve = eth_reserve;
         uint256 new_eth_reserve = (CONSTANT_PRODUCT) / usdt_reserve;
-        eth_reserve = new_eth_reserve *10**ETH_DECIMALS;
+        eth_reserve = new_eth_reserve * ETH_PRECISION;
 
         uint256 ethToReceive = initial_eth_reserve - eth_reserve;
         (bool ok, ) = msg.sender.call{value: ethToReceive}("");
@@ -127,10 +118,10 @@ contract ERC20Swap {
 
     // <-------- getter functions -------------> //
     function getEthUsdtReserves() external view returns(uint256, uint256) {
-        return (eth_reserve, usdt_reserve * 10**USDT_DECIMALS);
+        return (address(this).balance, i_usdt.balanceOf(address(this)) * ERC20_PRECISION);
     }
 
-    function getEthUsdtPrice() external view returns(uint256) {
-        return ((usdt_reserve *10**ETH_DECIMALS)/eth_reserve) *10**USDT_DECIMALS;
+    function getEthUsdtPrice() external view checkERC20 returns(uint256) {
+        return ((i_usdt.balanceOf(address(this)) * ETH_PRECISION)/address(this).balance) * ERC20_PRECISION;
     }
 }

@@ -111,6 +111,8 @@
                                     <li>You can find pre-written solidity smart contracts in the <code>contracts/</code> folder. Note that these contracts have not been reviewed and are not to be used in production.</li>
                                     <li>Do not save or write any file to the <code>artifacts/</code> folder. The solidity compiler will automatically write files to this folder.</li>
                                     <li>Use the same name for the solidity file and contract (e.g. <code>MyContract.sol</code> and <code>contract MyContract{...}</code>).</li>
+                                    <li>Surround strings and addresses with quotes.</li>
+                                    <li>In the constructor separate arguments with commas and a space. (e.g. "RaffleContract", 200). If the array accepts an array as a parameter, separate items in with a comma followed by no space. (e.g. "RaffleContract", [1,2,3], 300).</li>
                                 </ul>
                             </div>
                         </div>
@@ -286,7 +288,7 @@ document.querySelector("#load-contract").onclick = async function(e) {
         await contractData.bytecode
         .then(res => contractData.bytecode = res);
             
-        if (JSON.parse(contractData.abi)[0].type === "constructor") {
+        if (JSON.parse(contractData.abi)[0].type === "constructor" && JSON.parse(contractData.abi)[0].inputs.length > 0) {
             let constructorParams = [];
             contractData.hasConstructor = true;
     
@@ -417,6 +419,7 @@ async function handleFallbackAndReceiveTxs(response, receipt) {
     
 document.querySelector("#deploy").onclick = async function() {
     try {
+        document.querySelector("#tx-details #details-wrap").innerHTML = `Deploying ${document.querySelector("#contract-name").value.trim()}...`;
         const signer = await provider.getSigner(document.querySelector("#accounts").selectedIndex);
         const deploymentOverrides = {};
 
@@ -503,7 +506,8 @@ document.querySelector("#deploy").onclick = async function() {
                     const signer = await provider.getSigner(document.querySelector("#accounts").selectedIndex);
 
                     let args = Array.from(btn.parentElement.nextElementSibling.querySelectorAll("input")).map(input => {
-                        return JSON.parse(input.value);
+                        console.log(typeof JSON.parse(input.value))
+                        return typeof JSON.parse(input.value) === 'number' ? BigInt(input.value) : JSON.parse(input.value);
                     });
 
                     const resultElement = btn.parentElement.parentElement.nextElementSibling;

@@ -6,6 +6,10 @@ import {ERC721} from "./ERC721.sol";
 contract ERC721Enumerable is ERC721 {
     error ERC721Enumerable__OutOfBoundsIndex(address, uint256);
 
+    constructor() ERC721("", "") {
+        
+    }
+
     mapping(address owner => mapping(uint256 index => uint256)) private _ownedTokens; // returns a tokenId within a `balanceOf` range of NFTs for an `owner`
     mapping(uint256 tokenId => uint256) private _ownedTokensIndex; // returns the index of an owned tokenId for an `owner`
     uint256[] private _allTokens; // all NFTs in contract
