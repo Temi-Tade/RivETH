@@ -2,4 +2,4 @@
 ## $1 - first command-line argument, points to the solidity file to be compiled 
 
 #!/bin/bash
-solc contracts/$1 --abi --bin -o ./artifacts --overwrite    
+solc contracts/$1.sol --abi --bin -o ./artifacts --overwrite    

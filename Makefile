@@ -1,3 +1,4 @@
 .PHONY: all test deploy
 
-@compile :; ./compile.sh $(FILE)
+%:
+	solc contracts/$*.sol --abi --bin -o ./artifacts --overwrite

@@ -19,7 +19,7 @@
 - Navigate to the <code>RivETH</code> folder. <code>cd RivETH</code> and open it on VSCode.
 - Install dependencies: <pre>npm install</pre>
 - In the <code>RivETH</code> directory in your terminal, start a local hardhat node:<pre>npx hardhat node</pre>
-- In a separate terminal and in your working directory, compile the smart contract's solidity code:<pre>./compile.sh [FILE_NAME].sol</pre>Replace <code>[FILE_NAME]</code> with the name of the file you want to compile.
+- In a separate terminal and in your working directory, compile the smart contract's solidity code:<pre>./compile.sh [FILE_NAME].sol</pre>or with <pre>make [FILE_NAME]</pre>, do not add the <code>.sol</code> extension. Replace <code>[FILE_NAME]</code> with the name of the file you want to compile.
 - Start VSCode live server extension to open RivETH in your browser.
 
 ### Notes
