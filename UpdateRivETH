@@ -1,6 +1,6 @@
 #!/bin/bash
 
-REMOTE_URL=https://github.com/Temi-Tade/RivETH/tree/main/README.md
+REMOTE_URL=https://raw.githubusercontent.com/Temi-Tade/RivETH/main/README.md
 
 LOCAL_SHA=$(sha256sum README.md | awk '{print $1}')
 REMOTE_SHA=$(curl -sSL "$REMOTE_URL" | sha256sum | awk '{print $1}')
@@ -13,7 +13,7 @@ else
     curl -L -0 https://github.com/Temi-Tade/RivETH/archive/refs/heads/main.zip --output RivETH.zip
     
     echo "extracting files..."
-    unzip RivETH.zip -d temp && rsync -a --remove-source-files temp/RivETH/ .
+    unzip RivETH.zip -d temp && rsync -a --remove-source-files ./temp/*/ .
 
     echo "cleaning up junk files..."
     rm -rf temp RivETH.zip
