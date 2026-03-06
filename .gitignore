@@ -20,4 +20,4 @@ todo.md
 ignition/deployments/chain-31337
 
 # test solidity file
-./contracts/Example.sol
+contracts/Example.sol
