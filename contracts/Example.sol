@@ -2,28 +2,26 @@
 
 pragma solidity 0.8.30;
 
-contract Example {
-    uint256 public mtk = 10e5; // x
-    uint256 public usdc = 1000e4; // y
-    uint256 immutable constant_product = mtk * usdc;
-    uint8 constant swap_fee = 3; // 0.3% => 997/1000
-    uint256 public usdcToReceive;
+contract Called {
+    uint256 public immutable a = 2;
 
-    function swapmtkForUsdc(uint256 _amount) public {
-        uint256 old_usdc = usdc;
-        mtk += _amount;
-
-        uint256 new_usdc_reserve = constant_product / mtk;
-        usdc = new_usdc_reserve;
-
-        usdcToReceive = old_usdc - new_usdc_reserve;
+    function getValue() public pure returns(uint256) {
+        return a;
     }
+}
 
-    function swapUsdcFormtk(uint256 _amount) public {
-        
-    }
+contract Caller {
+    uint256 public immutable a = 3;
+    uint256 public value;
 
-    function getMtkUsdcPrice() external view returns(uint256) {
-        return usdc/mtk;
+    function getValueDelegate(address called) public {
+        (bool success, bytes memory data) = called.delegatecall(
+            abi.encodeWithSignature("getValue()")
+        );
+        if (!success) {
+            revert();
+        }
+
+        value = abi.decode(data, (uint256));
     }
-} 
+}

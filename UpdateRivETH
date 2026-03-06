@@ -1,0 +1,22 @@
+#!/bin/bash
+
+REMOTE_URL=https://github.com/Temi-Tade/RivETH/tree/main/README.md
+
+LOCAL_SHA=$(sha256sum README.md | awk '{print $1}')
+REMOTE_SHA=$(curl -sSL "$REMOTE_URL" | sha256sum | awk '{print $1}')
+
+if [ "$LOCAL_SHA" == "$REMOTE_SHA" ]; then
+    echo "You seem on the latest version of RivETH."
+    exit 0
+else
+    echo "downloading latest release..."
+    curl -L -0 https://github.com/Temi-Tade/RivETH/archive/refs/heads/main.zip --output RivETH.zip
+    
+    echo "extracting files..."
+    unzip RivETH.zip -d temp && rsync -a --remove-source-files temp/RivETH/ .
+
+    echo "cleaning up junk files..."
+    rm -rf temp RivETH.zip
+
+    echo "Update complete."
+fi

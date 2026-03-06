@@ -1,0 +1,7 @@
+{
+    "solidity.compileUsingLocalVersion": "true",
+    "liveServer.settings.ignoreFiles": [
+        "contracts/*",
+        "artifacts/**"
+    ]
+}

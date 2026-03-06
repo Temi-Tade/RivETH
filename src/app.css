@@ -3,6 +3,7 @@
     margin: 0;
     box-sizing: border-box;
     font-family: "Lexend", sans-serif;
+    transition: .25s;
 }
 
 *:focus{
@@ -43,6 +44,10 @@ button{
 
 button:disabled{
     background-color: #777;
+}
+
+button:hover {
+    box-shadow: 0 0 0 2px #ccc7;
 }
 
 input{
@@ -423,4 +428,17 @@ input[type=checkbox]:checked+span{
     color: #333;
     box-shadow: none;
     background-color: transparent;
+}
+
+/* state mutability buttons */
+.payable {
+    background-color: #d40000;
+}
+
+.nonpayable {
+    background-color: #d47500;
+}
+
+.view {
+    background-color: #0075d4;
 }

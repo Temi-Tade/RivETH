@@ -2,7 +2,6 @@ node_modules
 deploy.js
 .env
 .wake/
-.vscode/
 todo.md
 
 # Hardhat files
@@ -19,3 +18,6 @@ todo.md
 
 # Hardhat Ignition default folder for deployments against a local node
 ignition/deployments/chain-31337
+
+# test solidity file
+./contracts/Example.sol

@@ -1,14 +1,13 @@
 # RivETH
+### _Latest Release: v1.2.1_
 
 ## _A local, web-based, open source Ethereum Smart Contract development toolkit._
 ### Requirements
 - NodeJS. Download <a href="https://nodejs.org/en/download/current">here</a>
-- Hardhat.
-- Solidity compiler (solc).
 - Solidity VSCode Extension by Juan Blanco or Nomic Foundation.
 - VSCode Live Server Extension by Ritwick Dey.
 
-**_Solc and Hardhat will be installed alongside the dependencies_**
+**_solc and Hardhat will be installed alongside the dependencies_**
 
 **_Verify publishers before installing any extension._**
 
@@ -19,14 +18,14 @@
 - Navigate to the <code>RivETH</code> folder. <code>cd RivETH</code> and open it on VSCode.
 - Install dependencies: <pre>npm install</pre>
 - In the <code>RivETH</code> directory in your terminal, start a local hardhat node:<pre>npx hardhat node</pre>
-- In a separate terminal and in your working directory, compile the smart contract's solidity code:<pre>./compile.sh [FILE_NAME].sol</pre>or with <pre>make [FILE_NAME]</pre>, do not add the <code>.sol</code> extension. Replace <code>[FILE_NAME]</code> with the name of the file you want to compile.
+- In a separate terminal and in your working directory, compile the smart contract's solidity code:<pre>./compile [FILE_NAME]</pre>or with <pre>make [FILE_NAME]</pre>,you do not need to add the <code>.sol</code> extension. Replace <code>[FILE_NAME]</code> with the name of the file you want to compile.
 - Start VSCode live server extension to open RivETH in your browser.
 
 ### Notes
 - You can find pre-written solidity smart contracts in the <code>contracts/</code> folder. Note that these contracts have not been reviewed and are not to be used in production.
 - Do not save or write any file to the <code>artifacts/</code> folder. The solidity compiler will automatically write files to this folder.
 - Use the same name for the solidity file and contract (e.g. <code>MyContract.sol</code> and <code>contract MyContract{...}</code>).
-- To effect changes to a contract after making changes, click the "Load" button and redeploy the contract.
+- To effect changes to a contract after making changes, click the "Load" button to get the latest ABI and bytecode and redeploy the contract.
 
 ### How to Contribute
 RivETH is open source, you can help improve it by contributing. To contribute:
