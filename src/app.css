@@ -107,6 +107,10 @@ select{
     width: fit-content;
 }
 
+#copy-btn:hover {
+    box-shadow: none;
+}
+
 #copy-btn:after{
     position: absolute;
     top: 3px;

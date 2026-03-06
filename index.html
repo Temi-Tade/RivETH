@@ -626,6 +626,10 @@ window.onkeydown = function(e) {
         !e.metaKey &&
         !e.functionKey
     ) {
+        if (e.key.toLowerCase() === "a") {
+            KEY_BINDINGS[e.key].showPicker();
+            return;
+        }
         KEY_BINDINGS[e.key].click();
     }
 }

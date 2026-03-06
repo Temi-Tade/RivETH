@@ -6,7 +6,7 @@ LOCAL_SHA=$(sha256sum README.md | awk '{print $1}')
 REMOTE_SHA=$(curl -sSL "$REMOTE_URL" | sha256sum | awk '{print $1}')
 
 if [ "$LOCAL_SHA" == "$REMOTE_SHA" ]; then
-    echo "You seem on the latest version of RivETH."
+    echo "You seem to be on the latest version of RivETH."
     exit 0
 else
     echo "downloading latest release..."
