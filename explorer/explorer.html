@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="explorer.css">
+    <link rel="stylesheet" href="../src/app.css">
+    <link rel="stylesheet" id="csslink" href="">
+    <title>RivETHScan</title>
+</head>
+<body>
+    <!-- <form id="explorer-form">
+        <input type="search" name="explorer-search" id="explorer-search" placeholder="Search for an address...">
+    </form> -->
+    <header>
+        <h1>RivETHScan</h1>
+    </header>
+
+    <div id="explorer">
+        <table>
+            <thead>
+                <tr>
+                    <th>Block #</th>
+                    <th>Timestamp</th>
+                    <th>Block Hash</th>
+                    <th>Transactions</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <div id="modalbg">
+        <div id="modal">
+            <div style="display: flex; justify-content: flex-end;">
+                <button id="close-btn" title="Close">&times;</button>
+            </div>
+            <p></p>
+        </div>
+    </div>
+
+    <script src="../src/ui.js"></script>
+</body>
+</html>
+
+<script type="importmap">
+    {
+        "imports": {
+            "ethers": "../node_modules/ethers/dist/ethers.js"
+        }
+    }
+</script>
+
+<script type="module">
+    import {ethers} from "ethers";
+    import { JsonRpcProvider } from "ethers";
+
+    // load theme
+    const savedTheme = JSON.parse(localStorage.getItem("RivETHSessionData")).theme;
+    if (savedTheme === "light") {
+        document.querySelector("#csslink").href = "";
+    } else {
+        document.querySelector("#csslink").href = "../src/darkmode.css";
+    }
+
+    let isModalOpen = false;
+
+    const RPC_URL = "http://127.0.0.1:8545";
+    const provider = new JsonRpcProvider(RPC_URL);
+
+    async function init() {
+        try {      
+            provider.on("block", async (blockNumber) => {
+                const block = await provider.getBlock(blockNumber, true);
+                console.log(block);
+
+                document.querySelector(".no-data").style.display = "none";
+                renderBlock(block);
+            });
+        } catch (error) {
+            CREATE_MODAL(`${new Error(error).message}. Cannot connect, is the node running?`);
+        }
+        document.querySelector("tbody").innerHTML = "<p class='no-data'>No data exists yet...<small>Initiate a transaction on the smart contract, blocks will be populated here once they are mined.</small></p>"
+    }
+
+    function renderBlock(block) {
+        const row = document.createElement('tr');
+        row.className = 'tx-row';
+        let txData;
+        let decoded;
+        let isContractDeploymentTx = false;
+
+        block.transactions.map(async (txHash) => {
+            const [tx, receipt] = await Promise.all([
+                provider.getTransaction(txHash),
+                provider.getTransactionReceipt(txHash)
+            ]);
+
+            txData = Object.assign({}, tx, receipt);
+            
+            row.innerHTML = `
+            <td>${block.number}</td>
+            <td>${new Date(block.timestamp * 1000).toLocaleTimeString()}</td>
+            <td><button>${block.hash}</button></td>
+            <td>${block.transactions.length}</td>
+            `;
+            document.querySelector("tbody").prepend(row);
+            
+            row.onclick = function() {
+                isModalOpen = true;
+
+                CREATE_MODAL(`
+                    <div class='tx'>
+                        <h3>Transaction ${txData.hash}</h3>
+                        ${Object.keys(txData).map(key => {
+                            if (typeof txData[key] === 'string' || typeof txData[key] === 'number' || typeof txData[key] === 'bigint' || typeof txData[key] === 'boolean') {
+                                return key.toLowerCase().includes("gas") ? 
+                                    `<p><span>${key}</span> <span>${txData[key]} wei</span></p>` : 
+                                        `${key !== 'data' ? 
+                                            `<p><span>${key}</span> <span>${txData[key]}</span></p>` : 
+                                                `<p>
+                                                    <span>${key}</span>
+                                                    <span>
+                                                        <span>${txData[key]}</span>
+                                                        ${!txData["contractAddress"] ? 
+                                                        `<span id='decode-wrap'>
+                                                            <input id='contract-name' placeholder='Contract Name'/>
+                                                            <button id='decode-btn'>Decode data</button>
+                                                            <span id='decode-output'></span>
+                                                        </span>`: ''}
+                                                    </span>
+                                                </p>`}`
+                            }
+                        }).join('')}
+                    </div>
+                `);
+
+                if (isModalOpen && !txData["contractAddress"]) {
+                    document.querySelector('#decode-btn').onclick = function(e) {
+                        fetch(`http://127.0.0.1:5500/artifacts/${e.target.previousElementSibling.value.trim()}.abi`)
+                        .then(res => res.json())
+                        .then(data => {
+                            const abi = data;
+                            const iface = new ethers.Interface(abi);
+                            
+                            decoded = iface.parseTransaction({ data: tx.data });
+                            document.querySelector("#decode-output").innerHTML = `
+                                <small><em>Name</em> <em>${decoded.name}</em></small>
+                                <small><em>Selector</em> <em>${decoded.selector}</em></small>
+                                <small><em>Signature</em> <em>${decoded.signature}</em></small>
+                                <small><em>Arguments</em> <em class='decode-args'>${decoded.args.map((args, ind) => `<em>${ind} ${args}</em>`).join('')}</em></small>
+                            `
+                            console.log(decoded);
+                        })
+                    }
+
+                    window.onclick = function(e) {
+                        if (e.target === document.querySelector("#modalbg")) {
+                            document.querySelector("#modalbg").style.display = "none";
+                            isModalOpen = false;
+                        }
+                    }
+                }
+            }
+
+        });
+
+    }
+
+    init();
+</script>

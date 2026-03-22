@@ -12,7 +12,7 @@ import {ERC721} from './ERC721.sol';
 
 contract NFTMarketPlace {
     // mint NFT (ERC1721 or 1155)
-    // list on marketplace (approve contract, )
+    // list on marketplace (approve contract, duration)
     // intending buyer makes offer
     // accept exact offer, owner makes choice to accept other offers
     // update listings after sale
@@ -26,8 +26,11 @@ contract NFTMarketPlace {
     error NFTMarketPlace__SetDifferentPrice();
     error NFTMarketPlace__BuyFailed();
     error NFTMarketPlace__BuyerIsOwner();
+    error NFTMarketPlace__StaleListing(address ownerInContract, address ownerInMarketPlace);
 
     event List(address indexed nft, address indexed owner, uint256 indexed tokenId, uint256 price);
+    event CancelListing(address indexed nft, address indexed owner, uint256 indexed tokenId);
+    event BuyItem(address indexed nft, address indexed owner, address indexed buyer, uint256 tokenId, uint256 price);
 
     ///////////////////////////////////////////////
     /////////// modifiers /////////////////////////
@@ -47,6 +50,7 @@ contract NFTMarketPlace {
             revert NFTMarketPlace__TokenOwnerMismtach(ERC721(_nft).ownerOf(_tokenId), msg.sender, _tokenId);
         }
         if (!ERC721(_nft).isApprovedForAll(msg.sender, address(this))) {
+            // user only needs to approve the collection once
             revert NFTMarketPlace__ApprovalNotGranted(_nft, _tokenId);
         }
         if (_price == 0) {
@@ -68,8 +72,11 @@ contract NFTMarketPlace {
     }
 
     modifier buyTokenChecks(address _nft,uint256 _tokenId) {
+        address ownerInContract = ERC721(_nft).ownerOf(_tokenId);
+        address ownerInMarketPlace = s_listing[_nft][_tokenId].owner;
+
         // can only buy a token that exists
-        if (ERC721(_nft).ownerOf(_tokenId) == address(0)) {
+        if (ownerInContract == address(0)) {
             revert NFTMarketPlace__TokenIDDoesNotExist(_nft, _tokenId);
         }
         if (s_listing[_nft][_tokenId].owner == address(0)) {
@@ -77,6 +84,14 @@ contract NFTMarketPlace {
         }
         if (msg.sender == s_listing[_nft][_tokenId].owner) {
             revert NFTMarketPlace__BuyerIsOwner();
+        }
+        // handle stale listings
+        // listings in which the owner has transferred the NFT
+        // does this correct the logical flaw in the token contract?
+        // use tools like GraphQL to clean them up from the UI
+        // can I 
+        if (ERC721(_nft).ownerOf(_tokenId) != ownerInMarketPlace) {
+            revert NFTMarketPlace__StaleListing(ownerInContract, ownerInMarketPlace);
         }
         _;
     }
@@ -140,6 +155,8 @@ contract NFTMarketPlace {
     /// @param _tokenId ID of the NFT
     function cancelListing(address _nft, uint256 _tokenId) public modifyLisitingChecks(_nft, _tokenId) {
         delete s_listing[_nft][_tokenId];
+
+        emit CancelListing(_nft, msg.sender, _tokenId);
     }
 
     /// @notice buy a listed NFT
@@ -147,15 +164,17 @@ contract NFTMarketPlace {
     /// approval has been granted when creating the listing
     /// @param _nft contract address of the NFT
     /// @param _tokenId ID of the NFT
-    function buy(address _nft, uint256 _tokenId) public payable buyTokenChecks(_nft, _tokenId) {
+    function buyItem(address _nft, uint256 _tokenId) public payable buyTokenChecks(_nft, _tokenId) {
         uint256 amountToPay = msg.value;
         uint256 nftprice = s_listing[_nft][_tokenId].price;
+        Listing memory listing = s_listing[_nft][_tokenId];
 
         if (amountToPay < nftprice) {
             revert NFTMarketPlace__BuyFailed();
         }
-        Listing memory listing = s_listing[_nft][_tokenId];
         delete s_listing[_nft][_tokenId];
+
+        emit BuyItem(_nft, listing.owner, msg.sender, _tokenId, amountToPay);
 
         ERC721(_nft).safeTransferFrom(listing.owner, msg.sender, _tokenId, ""); // ignore, linter sees this as 'potential', it is not in actual fact
 

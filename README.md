@@ -1,10 +1,10 @@
 # RivETH
-### _Latest Release: v1.3.0_
+### _Latest Release: v1.4.0_
 
 ## _A local, web-based, open source Ethereum Smart Contract development toolkit._
 ### Requirements
 - NodeJS. Download <a href="https://nodejs.org/en/download/current">here</a>
-- Solidity VSCode Extension by Juan Blanco or Nomic Foundation.
+- Solidity VSCode Extension by Nomic Foundation.
 - VSCode Live Server Extension by Ritwick Dey.
 
 **_solc and Hardhat will be installed alongside the dependencies_**

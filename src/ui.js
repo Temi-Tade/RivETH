@@ -28,7 +28,7 @@ function CREATE_MODAL(content) {
 
 function DONATE() {
     CREATE_MODAL(`
-        <div id="donate">
+        <div id="donate"><br/>
             <h4>Thank you for supporting RivETH, together, we can build a community of web3 enthusiasts who are serious about security and growth!</h4>
             <p>Donations can be sent to: 0x49Df3350fafa751212cCa8AB631cEa6e6ACB2ce6 (ERC20)</p>
         </div>

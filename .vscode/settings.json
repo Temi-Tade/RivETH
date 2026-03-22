@@ -2,6 +2,23 @@
     "solidity.compileUsingLocalVersion": "true",
     "liveServer.settings.ignoreFiles": [
         "contracts/*",
-        "artifacts/**"
-    ]
+        "artifacts/**",
+        "interfaces/*"
+    ],
+    "editor.defaultFormatter": "NomicFoundation.hardhat-solidity",
+    "wake.compiler.solc.target_version": "0.8.30",
+    "solidity.compileUsingRemoteVersion": "v0.8.30",
+    "solidity.defaultCompiler": "remote",
+    "[solidity]": {
+        "editor.defaultFormatter": "NomicFoundation.hardhat-solidity"
+    },
+    "[html]": {
+        "editor.defaultFormatter": "vscode.html-language-features"
+    },
+    "[css]": {
+        "editor.defaultFormatter": "vscode.css-language-features"
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "vscode.typescript-language-features"
+    }
 }

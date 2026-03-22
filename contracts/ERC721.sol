@@ -17,15 +17,16 @@ contract ERC721 {
     mapping(uint256 tokenId => string tokenUri) private s_tokenUri;
     mapping(address owner => mapping(address operator => bool)) private _isApprovedForAll;
 
-    string private constant TOKEN_URI = "ipfs://QmP8YCWA3WxtK9kjQBF2LDjFWF5ffvbSgYK4S4yfuVgWES";
+    string private tokenUri;
 
     event Transfer(address indexed from, address indexed to, uint256 indexed id);
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
     event Approval(address indexed owner, address indexed spender, uint256 indexed id);
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
 
-    constructor(string memory _name, string memory _symbol) {
+    constructor(string memory _name, string memory _symbol, string memory _tokenUri) {
         name = _name;
         symbol = _symbol;
+        tokenUri = _tokenUri;
     }
 
     function _checkOnERC721Received(
@@ -56,7 +57,7 @@ contract ERC721 {
 
         ownerOf[s_tokenCounter] = receipient;
         balanceOf[receipient] += 1;
-        s_tokenUri[s_tokenCounter] = TOKEN_URI;
+        s_tokenUri[s_tokenCounter] = tokenUri;
         s_tokenCounter++;
 
         emit Transfer(address(0), receipient, s_tokenCounter);
@@ -84,7 +85,7 @@ contract ERC721 {
         }
     }
 
-    function mintNft(address receipient) external {
+    function mintNft(address receipient) public {
         _safeMint(receipient);
     }
 

@@ -1,0 +1,156 @@
+header {
+    padding: .25rem !important;
+    box-shadow: 0 0 2px 0 #7777;
+}
+
+table {
+    /* border: 1px solid; */
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th {
+    padding: .5rem;
+}
+
+tr {
+    grid-template-columns: 1fr 2fr 3fr 1fr !important;
+    cursor: pointer;
+    /* grid-template-columns: none !important; */
+}
+
+tr:hover {
+    background-color: #7773;
+}
+
+tr:nth-child(even):hover, .tx p:nth-child(even) {
+    background-color: #7773;
+}
+
+td {
+    width: 100%;
+    padding: .5rem !important;
+    text-align: center !important;
+    display: grid;
+    place-items: center;
+}
+
+td button {
+    background-color: transparent !important;
+    text-decoration: underline;
+}
+
+td button:hover {
+    box-shadow: 0 0 0 !important;
+}
+
+tbody:nth-child(even) {
+    background-color: transparent !important;
+}
+
+tbody tr:nth-child(even), .tx p:nth-child(even) {
+    background-color: #aaa7;
+}
+
+td:nth-child(2) {
+    height: auto !important;
+    text-align: center !important;
+    display: grid !important;
+}
+
+.tx-row {
+    padding: .25rem;
+}
+
+.tx {
+    padding: .5rem;
+    width: fit-content;
+}
+
+.tx p {
+    padding: .25rem;
+    margin: .5rem auto;
+    display: flex;
+    align-items: flex-start;
+    border-radius: .3rem;
+}
+
+.tx p span {
+    padding: .5rem;
+    display: inline-block;
+    text-align: left;
+}
+
+.tx p>span:first-child {
+    width: 30%;
+}
+
+.tx p span:nth-child(2) {
+    word-break: break-all;
+    width: 70%;
+    max-height: 10rem;
+    overflow-y: auto;
+}
+
+.no-data {
+    font-size: 2rem;
+    text-align: center;
+    padding: 2rem;
+    background: linear-gradient(#5557, #3337, #2225);
+}
+
+.no-data small {
+    display: block;
+    font-size: 1rem;
+}
+
+#modal {
+    width: 70% !important;
+}
+
+#modal p {
+    max-height: 60dvh !important;
+    font-weight: 400 !important;
+    /* overflow-y: auto; */
+}
+
+#modal p button {
+    font-weight: 400;
+    background-color: #0075d4;
+    padding: .5rem;
+    font-size: 1rem;
+}
+
+#decode-wrap {
+    width: 100%;
+}
+
+#decode-output {
+    display: block;
+    padding: .0625rem;
+}
+
+#decode-output small {
+    padding: .125rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-family: monospace;
+    font-size: .8rem;
+}
+
+#decode-output small em {
+    font-family: monospace;
+    display: inline-block;
+}
+
+.decode-args {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.decode-args em {
+    display: block !important;
+}
