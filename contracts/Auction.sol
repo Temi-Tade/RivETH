@@ -21,9 +21,9 @@ contract Auction {
     // number of bids placed, highest bidder and bids placed can be seen -
     // highest bidder wins
 
-    constructor (uint256 _minimumBid) {
+    constructor () payable {
         i_owner = msg.sender;
-        minimumBid = _minimumBid; // in wei
+        minimumBid = msg.value; // in wei
     }
 
     // errors
