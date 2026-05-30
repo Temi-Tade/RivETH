@@ -20,6 +20,7 @@ contract ERC20 {
 
     mapping(address => uint256) public balanceOf;
     mapping(address => mapping(address => uint256)) public allowance;
+    mapping(address => bool) public isMinter;
 
 
     constructor(string memory _name, string memory _symbol) payable {
@@ -47,9 +48,25 @@ contract ERC20 {
         emit Transfer(address(0), to, amount);
     }
 
+    function _burn(address from, uint256 amount) internal virtual {
+        // handle zeros
+        if (balanceOf[from] < amount) {
+            revert ERC20__NotEnoughTokens();
+        }
+
+        balanceOf[from] -= amount;
+        totalSupply -= amount;
+
+        emit Transfer(from, address(0), amount);
+    }
+
     // ---- external functions ---- //
-    function mintTokens(address to, uint256 amount) external onlyOwner {
+    function mintTokens(address to, uint256 amount) external /*onlyOwner*/ {
         _mint(to, amount);
+    }
+
+    function whiteListMinter(address minter) external /*onlyOwner*/ {
+        isMinter[minter] = true;
     }
 
     function transfer(address to, uint256 amount) public returns(bool) {
@@ -73,27 +90,35 @@ contract ERC20 {
     }
 
     function transferFrom(address from, address to, uint256 amount) public returns(bool) {
-        if (msg.sender == owner) {
-            balanceOf[owner] -= amount;
-            balanceOf[to] += amount;
+        if (msg.sender == from) {
+            // balanceOf[from] -= amount;
+            // balanceOf[to] += amount;
+            _transfer(from, to, amount);
         } else {
             if (allowance[from][msg.sender] < amount) {
                 revert ERC20__NotEnoughAllowance();
             } 
 
-            balanceOf[from] -= amount;
-            balanceOf[to] += amount;
+            // balanceOf[from] -= amount;
+            // balanceOf[to] += amount;
+            _transfer(from, to, amount);
             allowance[from][msg.sender] -= amount;
-            emit Transfer(from, to, amount);
         }
+
+        emit Transfer(from, to, amount);
 
         return true;
     }
 
-    modifier onlyOwner() {
-        if (msg.sender != owner) {
-            revert ERC20__NotOwner();
-        }
-        _;
+    function burnTokens(address _owner, uint256 amount) public /*onlyOwner*/ returns(bool) {
+        _burn(_owner, amount);
+        return true;
     }
+
+    // modifier onlyOwner() {
+    //     if (msg.sender != owner || !isMinter[msg.sender]) {
+    //         revert ERC20__NotOwner();
+    //     }
+    //     _;
+    // }
 }

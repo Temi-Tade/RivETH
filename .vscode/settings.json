@@ -3,7 +3,8 @@
     "liveServer.settings.ignoreFiles": [
         "contracts/*",
         "artifacts/**",
-        "interfaces/*"
+        "interfaces/*",
+        "tests/*"
     ],
     "editor.defaultFormatter": "NomicFoundation.hardhat-solidity",
     "wake.compiler.solc.target_version": "0.8.30",
@@ -20,5 +21,11 @@
     },
     "[javascript]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
     }
 }

@@ -1,0 +1,29 @@
+RivETH => 
+workflow
+<=
+
+Run deploy =>
+function: _
+params: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+<=
+
+Run RegisterDev =>
+function: registerDev
+params: 
+caller:
+value: 1000000000000000
+<=
+
+Run ListApp =>
+function: listApp
+params: Test App, someurl.domain, productivity
+caller: 
+value: 
+<=
+
+Run ListApp =>
+function: getAppKey
+params: someurl.domain
+caller: 
+value: 
+<=

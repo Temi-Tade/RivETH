@@ -1,0 +1,22 @@
+RivETH => 
+workflow
+<=
+
+Run deploy =>
+function: _
+params: 
+<=
+
+Run DepositETH =>
+function: deposit
+params: 
+caller:
+value: 10000000000000000000
+<=
+
+Run CheckBalance =>
+function: balanceOf
+params: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+caller:
+value: 
+<=

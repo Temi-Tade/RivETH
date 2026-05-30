@@ -3,11 +3,6 @@ html, nav {
     color: #fff;
 }
 
-code, pre {
-    color: #ddd;
-    background-color: #555;
-}
-
 a {
     color: #0075d4;
 }
@@ -23,7 +18,7 @@ input:focus{
 }
 
 #load-area{
-    background-color: #7777;
+    background-color: #5555;
 }
 
 ::placeholder{
@@ -53,10 +48,6 @@ label{
 
 select, option {
     background-color: #555;
-    color: #fff;
-}
-
-#donate , #donate p{
     color: #fff;
 }
 

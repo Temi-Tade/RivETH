@@ -1,5 +1,5 @@
 # RivETH
-### _Latest Release: v1.6.0_
+### _Latest Release: v1.7.0_
 
 ## _A local, web-based, open source Ethereum Smart Contract development toolkit._
 ### Requirements
@@ -26,6 +26,9 @@
 - Do not save or write any file to the <code>artifacts/</code> folder. The solidity compiler will automatically write files to this folder.
 - Use the same name for the solidity file and contract (e.g. <code>MyContract.sol</code> and <code>contract MyContract{...}</code>).
 - To effect changes to a contract after making changes, click the "Load" button to get the latest ABI and bytecode and redeploy the contract.
+
+### Updating RivETH
+RivETH is regularly updated with new features, bug fies and patches. To ensure you are on the latest release of RivETH, Run `make update` or `./UpdateRivETH` in the root directory of your RivETH project.
 
 ### How to Contribute
 RivETH is open source, you can help improve it by contributing. To contribute:

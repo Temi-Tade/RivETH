@@ -320,12 +320,6 @@ output{
     padding-bottom: .5rem;
 }
 
-#mini-doc {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    line-height: 1.4;
-}
-
 #intro ul {
     /* list-style-type: none; */
     list-style-position: inside;
@@ -336,30 +330,6 @@ output{
     padding: .125rem;
     font-size: .85rem;
 }
-
-pre{
-    background-color: #ccc7;
-    font-family: monospace;
-    padding: .125rem;
-    border-radius: .4rem;
-    display: inline;
-    color: #333;
-    font-size: .8rem;
-}
-
-code{
-    background-color: #ccc7;
-    font-family: monospace;
-    padding: .125rem;
-    border-radius: .4rem;
-    color: #333;
-    font-size: .8rem;
-}
-
-/* #setup{
-    width: 70%;
-    margin: auto;
-} */
 
 #intro h3{
     text-align: center;
@@ -372,16 +342,30 @@ code{
     color: #0075d4;
 }
 
-#donate , #donate p{
-    color: #333;
-}
-
 #close-btn{
     color: #333;
     font-size: 1.75rem !important;
     position: absolute;
     right: 5px;
     top: 0;
+}
+
+#no-tx {
+    padding: .5rem;
+    display: grid;
+    place-items: center;
+    margin-top: 3rem;
+}
+
+#no-tx p {
+    margin: .5rem 0;
+}
+
+#no-tx button {
+    background-color: #0075d4;
+    color: #fff;
+    text-decoration: none;
+    padding: .5rem;
 }
 
 #close-btn:hover {
@@ -469,15 +453,17 @@ input[type=checkbox]:checked+span{
 
 .menu div ul {
     display: grid;
-    grid-template-columns: 2fr 2fr;
+    grid-template-columns: 1fr 1fr;
     list-style-type: none;
     margin: .25rem 0;
+    /* padding: 0 5rem; */
 }
 
 .menu div li {
     text-align: left;
-    margin: .25rem auto;
-    /* width: 100%; */
+    margin: .35rem .25rem;
+    width: 100%;
+    /* border: 1px solid; */
 }
 
 .menu div li::first-letter {
@@ -496,4 +482,38 @@ input[type=checkbox]:checked+span{
     /* padding: .0625rem; */
     display: inline-block;
     margin-right: .25rem;
+}
+
+#workflow-logs-wrap {
+    display: none;
+    position: relative;
+    padding: .5rem;
+    /* width: 350px; */
+    word-break: normal;
+    overflow-wrap: break-word;
+    margin: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+    height: 100%;
+}
+
+#workflow-logs {
+    height: calc(100dvh - 5rem);
+    overflow-y: auto;
+}
+
+#workflow-logs p{
+    text-align: left;
+    font-family: monospace;
+    margin-top: .25rem;
+}
+
+#log-actions {
+    position: fixed;
+    right: 2rem;
+}
+
+#log-actions button {
+    /* background-color: transparent; */
+    padding: .125rem;
 }
