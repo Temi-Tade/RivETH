@@ -76,7 +76,9 @@ nav{
 }
 
 header{
-    padding: .125rem;
+    /* padding: .125rem; */
+    position: sticky;
+    top: 0;
 }
 
 img{
@@ -141,6 +143,14 @@ select{
     background-color: #ccc7;
     padding: .25rem;
     border-radius: 0 .4rem .4rem 0;
+    height: 100dvh;
+    overflow-y: auto;
+    display: grid;
+    /* grid-template-rows: 1fr 3fr; */
+}
+
+#contract-details {
+    height: 20%;
 }
 
 #constructor{
@@ -187,6 +197,8 @@ select{
 
 #interaction-panel{
     padding: 0 .5rem;
+    height: 100%;
+    overflow-y: auto;
 }
 
 #interaction-panel #contract-balance{
@@ -195,7 +207,7 @@ select{
 
 #interaction-panel ul {
     list-style-type: none;
-    height: 25rem;
+    /* height: 10%; */
     overflow-y: auto;
 }
 
@@ -222,7 +234,7 @@ select{
 }
 
 #tx-details #details-wrap{
-    height: calc(100dvh - 5rem);
+    height: calc(100dvh);
     overflow-y: auto;
     padding: .5rem;
 }

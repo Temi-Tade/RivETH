@@ -46,7 +46,7 @@
 
         <div id="contract-area">
             <div id="load-area">
-                <div>
+                <div id='contract-details'>
                     <div>
                         <p style="padding: .25rem;">Load Compiled Contract</p>
                         <div id="contract-loader">
@@ -150,7 +150,8 @@ const CONTRACT_NAME = document.querySelector("#contract-name");
 const ACCOUNTS = document.querySelector("#accounts");
 
 // RivETH 
-const RPC_URL = "http://127.0.0.1:8545";
+const RIVETH_URL = location.host.endsWith(".app.github.dev") ? "https://automatic-space-guacamole-jp95j9g96rw25r5g-5500.app.github.dev/" : "http://127.0.0.1:5500/"; // for my GitHub codespace
+const RPC_URL = location.host.endsWith(".app.github.dev") ? "https://automatic-space-guacamole-jp95j9g96rw25r5g-8545.app.github.dev/" : "http://127.0.0.1:8545/"; // for my GitHub codespace
 const provider = new JsonRpcProvider(RPC_URL);
 const contractData = {
     abi: undefined,
@@ -260,8 +261,8 @@ document.querySelector("#load-contract").onclick = async function(e) {
         document.querySelector("#deploy-params").value = "";
         document.querySelector("#deploy-params").disabled = true;
 
-        const abi = await fetch(`http://127.0.0.1:5500/artifacts/${e.target.previousElementSibling.value.trim()}.abi`);
-        const bin = await fetch(`http://127.0.0.1:5500/artifacts/${e.target.previousElementSibling.value.trim()}.bin`);
+        const abi = await fetch(`${RIVETH_URL}artifacts/${e.target.previousElementSibling.value.trim()}.abi`);
+        const bin = await fetch(`${RIVETH_URL}artifacts/${e.target.previousElementSibling.value.trim()}.bin`);
 
         await Promise.all([abi, bin])
         .then(res => {
