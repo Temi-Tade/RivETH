@@ -1,5 +1,5 @@
 # RivETH
-### _Latest Release: v1.7.0_
+### _Latest Release: v1.7.1_
 
 ## _A local, web-based, open source Ethereum Smart Contract development toolkit._
 ### Requirements
