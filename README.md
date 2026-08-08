@@ -110,3 +110,5 @@ Contributions are welcome! To contribute:
 3. **Open an Issue** detailing the feature, fix, or enhancement you plan to work on.
 4. **Create a branch** and commit your changes.
 5. **Open a Pull Request** referencing your issue for review.
+
+[Official RivETH Documentation](https://temi-tade.github.io/RivETHDocs)
