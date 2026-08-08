@@ -1,40 +1,112 @@
 # RivETH
-### _Latest Release: v1.7.1_
 
-## _A local, web-based, open source Ethereum Smart Contract development toolkit._
-### Requirements
-- NodeJS. Download <a href="https://nodejs.org/en/download/current">here</a>
-- Solidity VSCode Extension by Nomic Foundation.
-- VSCode Live Server Extension by Ritwick Dey.
+> A local, web-based, open-source Ethereum smart contract development toolkit featuring the **RivETHScan** block explorer, automated test scripting, and multi-tab orchestration.
 
-**_solc and Hardhat will be installed alongside the dependencies_**
+---
 
-**_Verify publishers before installing any extension._**
+<p align="center">
+  <img src="https://img.shields.io/badge/Latest%20Release-v1.7.1-6366f1?style=for-the-badge&logo=github&logoColor=white" alt="Latest Release" />
+  <a href="https://www.alchemy.com/dapps/riveth">
+    <img src="https://img.shields.io/badge/Alchemy-Listed-0052FF?style=for-the-badge&logo=alchemy&logoColor=white" alt="Listed in Alchemy" />
+  </a>
+</p>
 
-### Set up
-- In your terminal or git bash (for windows), create a new working directory, for example: <pre>mkdir solidity-smart-contract-practice</pre>
-- Download RivETH <pre>curl -L -0 https://github.com/Temi-Tade/RivETH/archive/refs/heads/main.zip --output RivETH.zip && unzip RivETH.zip -d temp && mv temp/RivETH-main/* . && rm -rf temp RivETH.zip
-</pre>
-- Navigate to the <code>RivETH</code> folder. <code>cd RivETH</code> and open it on VSCode.
-- Install dependencies: <pre>npm install</pre>
-- In the <code>RivETH</code> directory in your terminal, start a local hardhat node:<pre>npx hardhat node</pre>
-- In a separate terminal and in your working directory, compile the smart contract's solidity code:<pre>./compile [FILE_NAME]</pre>or with <pre>make [FILE_NAME]</pre>,you do not need to add the <code>.sol</code> extension. Replace <code>[FILE_NAME]</code> with the name of the file you want to compile.
-- Start VSCode live server extension to open RivETH in your browser.
+---
 
-### Notes
-- You can find pre-written solidity smart contracts in the <code>contracts/</code> folder. Note that these contracts have not been reviewed and are not to be used in production.
-- Do not save or write any file to the <code>artifacts/</code> folder. The solidity compiler will automatically write files to this folder.
-- Use the same name for the solidity file and contract (e.g. <code>MyContract.sol</code> and <code>contract MyContract{...}</code>).
-- To effect changes to a contract after making changes, click the "Load" button to get the latest ABI and bytecode and redeploy the contract.
+## Key Features
 
-### Updating RivETH
-RivETH is regularly updated with new features, bug fies and patches. To ensure you are on the latest release of RivETH, Run `make update` or `./UpdateRivETH` in the root directory of your RivETH project.
+* **RivETHScan Block Explorer:** Inspect transactions, blocks, and deployed contracts locally with a built-in block explorer interface.
+* **Custom Automated Scripting:** Write and execute automated contract workflows using `.riveth` files.
+* **Injected Wallet & Provider Support:** Seamlessly connect and interact with MetaMask, Frame, or local Hardhat provider instances.
+* **Multi-Tab Orchestration:** Monitor logs, run scripts, and inspect state changes across multiple browser tabs simultaneously.
+* **Zero-Friction Local Pipeline:** Rapidly compile, deploy, and redeploy contracts directly from your terminal workspace.
+* **Alchemy Verified:** Official listing featured on the [Alchemy dApp Store](https://www.alchemy.com/dapps/riveth).
 
-### How to Contribute
-RivETH is open source, you can help improve it by contributing. To contribute:
-- Create a fork of the main repo.
-- Clone your forked repo.
-- Create an issue with the specific bug fix/change/feature you want to make/add.
-- Work on your bug fix/change/feature and push your changes to the forked repo.
-- Create a pull request with the bug fix/change/feature you worked on.
-- Your PR will be reviewed and then merged if deemed fit.
+---
+
+## Prerequisites
+
+Ensure you have the following installed before getting started:
+
+1. **[Node.js](https://nodejs.org/)** (Latest LTS or Current)
+2. **VS Code Extensions** *(Verify publisher names before installing)*:
+* **Solidity** (by *Nomic Foundation*)
+* **Live Server** (by *Ritwick Dey*)
+
+
+> **Note:** `solc` (Solidity compiler) and `hardhat` (local Blockchain node provider) will be installed automatically alongside project dependencies.
+
+---
+
+## Quick Start
+
+### 1. Download & Initialize
+
+Open your terminal (or Git Bash on Windows) and run:
+
+```bash
+# Create and enter your workspace directory
+mkdir solidity-smart-contract-practice && cd solidity-smart-contract-practice
+
+# Download and extract the latest RivETH codebase
+curl -L -O https://github.com/Temi-Tade/RivETH/archive/refs/heads/main.zip --output RivETH.zip && unzip RivETH.zip -d temp && mv temp/RivETH-main/* . && rm -rf temp RivETH.zip
+
+# Navigate into the project folder and run the setup script
+cd RivETH
+chmod +x setup
+./setup
+
+```
+This will install dependencies, and spin up the local Blockchain node.
+
+### 2. Compile Contracts
+
+In a **separate terminal window** within your project directory, compile your Solidity contract using either command (do not include the `.sol` extension):
+
+```bash
+./compile [FILE_NAME]
+# OR
+make [FILE_NAME]
+
+```
+
+*Example:* `./compile MyContract` or `make MyContract`
+
+### 3. Launch Web App & Block Explorer
+
+Start the **VS Code Live Server** extension to open the RivETH dashboard interface directly in your browser.
+
+The official documentation is linked below for further reading.
+---
+
+## Usage Guidelines & Best Practices
+
+* **Contract Naming:** It is recommended that your filename matches your contract name (e.g., `MyContract.sol` containing `contract MyContract { ... }`).
+* **Sample Contracts:** Sample Solidity files are available in the `contracts/` directory for reference. *(These are for testing/learning only - do not use in production).*
+* **Artifacts Folder:** Do not manually edit or write files to `artifacts/`. The solidity compiler will automatically populate this directory.
+* **Redeploying Changes:** After updating your Solidity source code and recompiling, simply click the **Load** button in the web UI to fetch the latest ABI and bytecode before redeploying.
+
+---
+
+## Updating RivETH
+
+RivETH receives frequent updates, bug fixes, and performance patches. To update your local setup to the latest release, run either command in your project root:
+
+```bash
+make update
+# OR
+./UpdateRivETH
+
+```
+
+---
+
+## Contributing
+
+Contributions are welcome! To contribute:
+
+1. **Fork** the repository.
+2. **Clone** your fork locally.
+3. **Open an Issue** detailing the feature, fix, or enhancement you plan to work on.
+4. **Create a branch** and commit your changes.
+5. **Open a Pull Request** referencing your issue for review.
