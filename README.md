@@ -59,6 +59,11 @@ chmod +x setup
 ```
 This will install dependencies, and spin up the local Blockchain node.
 
+You can also run the installer and setup in one go:
+```bash
+curl -L https://temi-tade.github.io/RivETHDocs/install.sh | bash
+```
+
 ### 2. Compile Contracts
 
 In a **separate terminal window** within your project directory, compile your Solidity contract using either command (do not include the `.sol` extension):
