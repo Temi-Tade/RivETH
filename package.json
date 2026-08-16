@@ -5,6 +5,7 @@
     "hardhat": "^2.28.6"
   },
   "dependencies": {
+    "ethers": "^6.17.0",
     "solc": "^0.8.36"
   }
 }

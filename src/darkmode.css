@@ -1,60 +1,64 @@
-html, nav {
-    background-color: #232323;
-    color: #fff;
+/* =========================================================================
+   RivETH — darkmode.css
+   Loaded in place of the blank second <link> when dark mode is active.
+   Only redefines tokens + the handful of rules that need a non-token
+   value (shadows, scrollbars) — app.css supplies all structure/layout.
+   ========================================================================= */
+
+:root {
+  --bg: #0E1013;
+  --surface: #15181C;
+  --surface-sunken: #1B1F24;
+  --border: #262B31;
+  --border-strong: #363C44;
+  --text: #ECEDEF;
+  --text-muted: #9096A0;
+  --text-faint: #676D77;
+
+  --accent: #6C93FF;
+  --accent-strong: #8FADFF;
+  --accent-soft: rgba(108, 147, 255, 0.14);
+  --accent-soft-border: rgba(108, 147, 255, 0.35);
+
+  --success: #35CE9A;
+  --success-soft: rgba(53, 206, 154, 0.12);
+  --success-border: rgba(53, 206, 154, 0.32);
+
+  --danger: #F16A62;
+  --danger-soft: rgba(241, 106, 98, 0.12);
+  --danger-border: rgba(241, 106, 98, 0.32);
+
+  --warning: #E0A840;
+  --warning-soft: rgba(224, 168, 64, 0.12);
+  --warning-border: rgba(224, 168, 64, 0.32);
+
+  --overlay: rgba(0, 0, 0, 0.65);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.5);
+
+  color-scheme: dark;
 }
 
-a {
-    color: #0075d4;
+/* buttons that used pure white/black text for contrast in light mode */
+#contract-loader button,
+.deploy-row button,
+#run-a-workflow,
+.launch-explorer-btn,
+#run-btn {
+  color: #0E1013;
+}
+#contract-loader button:hover:not(:disabled),
+.deploy-row button:hover:not(:disabled),
+#run-a-workflow:hover,
+.launch-explorer-btn:hover,
+#run-btn:hover {
+  color: #0E1013;
 }
 
-input {
-    border-color: #fff;
-    color: #fff;
-}
+.switch span::before { background: #F2F3F5; }
 
-input:focus{
-    outline-offset: .25rem;
-    box-shadow: 0 0 0 2px #eee7;
-}
+::-webkit-scrollbar-thumb { background: var(--border-strong); }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
 
-#load-area{
-    background: #5555;
-}
-
-::placeholder{
-    color: #cccc;
-}
-
-#copy-btn:before{
-    background-color: #aaa;
-    box-shadow: 0 0 2px 1px #aaaa;
-}
-
-#modal {
-    background-color: #232323;
-}
-
-#modal p {
-    color: #fffe;
-}
-
-label{
-    background-color: #333;
-}
-
-::-webkit-scrollbar-thumb{
-    background-color: #ccc7;
-}
-
-select, option {
-    background-color: #555;
-    color: #fff;
-}
-
-#close-btn{
-    color: #fff;
-}
-
-.converter-field label {
-    color: #fffe;
-}
+::selection { background: var(--accent-soft-border); }
