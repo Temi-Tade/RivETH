@@ -1,822 +1,854 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="./src/app.css">
-        <link rel="stylesheet" href="./src/app.css" id="csslink">
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lexend">
-        <title>RivETH</title>
-    </head>
-    
-    <body>
-        <header>
-            <nav>
-                <img src="./src/images/RivETH.png" alt="RivETH" width="50" title="Open Menu">
-                
-                <div>RPC URL: <span id="provider"><small style="color: red;">Cannot connect to Hardhat node</small></span></div>
-                <div>
-                    Accounts:<br/>
-                    <p style="display: flex; align-items: center;">
-                        <span id="injected-provider-status" title="Injected Provider - Disconnected"></span>
-                        <select id="accounts">
-                            <option value="---">---</option>
-                        </select>
-                        <button id="copy-btn" onclick="COPY_ADDRESS(this)" title="Copy Address"></button>
-                        <span style="display: none;">✅</span>
-                    </p>
-                </div>
-                <div>
-                    Dark mode:
-                    <p style="display: grid; place-items: center;">
-                        <label>
-                            <input type="checkbox" id="theme-toggler" onchange="TOGGLE_THEME(this)">
-                            <span></span>
-                        </label>
-                    </p>
-                </div>
-                <div>
-                    <button id="eth-converter-btn">Converter</button>
-                </div>
-                <div style="display: none;">
-                    <button id="injected-provider-btn">Inject Provider</button>
-                </div>
-            </nav>
-        </header>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="RivETH — a local, browser-based toolkit for compiling, deploying, and interacting with Ethereum smart contracts.">
+    <meta name="theme-color" content="#1f6feb">
+    <link rel="icon" type="image/png" href="./src/images/RivETH.png">
 
-        <div id="contract-area">
-            <div id="load-area">
-                <div id='contract-details'>
-                    <div>
-                        <p style="padding: .25rem;">Load Compiled Contract</p>
-                        <div id="contract-loader">
-                            <input type="text" id="contract-name" placeholder="Contract Name" autocomplete="off" spellcheck="false">
-                            <button id="load-contract" disabled>Load</button>
+    <link rel="stylesheet" href="./src/app.css">
+    <link rel="stylesheet" href="./src/app.css" id="csslink">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lexend">
+
+    <!-- Must be registered before the module script below fetches "ethers" -->
+    <script type="importmap">
+        {
+            "imports": {
+                "ethers": "./node_modules/ethers/dist/ethers.js"
+            }
+        }
+    </script>
+
+    <title>RivETH</title>
+</head>
+
+<body>
+    <header class="site-header">
+        <nav class="site-nav" aria-label="Primary">
+            <img
+                class="brand-mark"
+                src="./src/images/RivETH.png"
+                alt="RivETH"
+                width="50"
+                title="Open Menu"
+                role="button"
+                tabindex="0"
+                aria-label="Open menu"
+            >
+
+            <div class="nav-item nav-rpc">
+                <span class="nav-label">RPC URL</span>
+                <span id="provider"><small style="color: red;">Cannot connect to Hardhat node</small></span>
+            </div>
+
+            <div class="nav-item nav-accounts">
+                <span class="nav-label">Accounts</span>
+                <p class="account-row">
+                    <span id="injected-provider-status" title="Injected Provider - Disconnected"></span>
+                    <label class="sr-only" for="accounts">Select account</label>
+                    <select id="accounts">
+                        <option value="---">---</option>
+                    </select>
+                    <button id="copy-btn" onclick="COPY_ADDRESS(this)" title="Copy Address" aria-label="Copy address"></button>
+                    <span class="copy-feedback" style="display: none;">✅</span>
+                </p>
+            </div>
+
+            <div class="nav-item nav-theme">
+                <span class="nav-label">Dark mode</span>
+                <p class="theme-row">
+                    <label class="switch">
+                        <input type="checkbox" id="theme-toggler" onchange="TOGGLE_THEME(this)">
+                        <span></span>
+                    </label>
+                </p>
+            </div>
+
+            <div class="nav-item nav-converter">
+                <button id="eth-converter-btn">Converter</button>
+            </div>
+
+            <div class="nav-item nav-injected" style="display: none;">
+                <button id="injected-provider-btn">Inject Provider</button>
+            </div>
+        </nav>
+    </header>
+
+    <main id="contract-area">
+        <section id="load-area" aria-label="Contract loader and functions">
+            <section id="contract-details">
+                <div class="panel-head">
+                    <p>Load Compiled Contract</p>
+                    <div id="contract-loader">
+                        <label class="sr-only" for="contract-name">Contract name</label>
+                        <input type="text" id="contract-name" placeholder="Contract Name" autocomplete="off" spellcheck="false">
+                        <button id="load-contract" disabled>Load</button>
+                    </div>
+                </div>
+
+                <div id="deploy-contract">
+                    <div id="constructor" style="display: none;">
+                        <div id="eth-value">
+                            <label for="ether"><small>Value<br>(wei)</small></label>
+                            <input type="number" name="ether" id="ether" min="0" step="1" value="0" placeholder="0 wei">
+                        </div>
+
+                        <p>Deploy <span id="name-of-compiled-contract"></span><br><small></small></p>
+                        <div class="deploy-row">
+                            <label class="sr-only" for="deploy-params">Constructor parameters</label>
+                            <input type="text" id="deploy-params" autocomplete="off" autocorrect="off">
+                            <button id="deploy" disabled>Deploy</button>
                         </div>
                     </div>
-    
-                    <div id="deploy-contract">
-                        <div id="constructor" style="display: none;">
-                            <div id="eth-value">
-                                <p><small>Value<br/>(wei)</small></p>&nbsp;
-                                <div>
-                                    <input type="number" name="ether" id="ether" min="0" step="1" value="0" placeholder="0 wei">
-                                </div>
-                            </div>
+                </div>
+            </section>
 
-                            <p>Deploy <span id="name-of-compiled-contract"></span><br><small></small></p>
-                            <div style="display: flex; justify-content: space-around;">
-                                <input type="text" id="deploy-params" autocomplete="off" autocorrect="off">
-                                <button id="deploy" disabled>Deploy</button>
-                            </div>
-                        </div>
-                    </div>
+            <section id="interaction-panel" aria-label="Contract functions">
+                <p>Interact</p>
+                <p id="contract-balance" style="display: none;"></p>
+                <ul>
+                    <li class="empty-state">
+                        <small><em>No deployment found. First compile a contract and load it into RivETH.</em></small>
+                    </li>
+                </ul>
+            </section>
+        </section>
+
+        <section id="tx-details" aria-label="Transaction details">
+            <div id="details-wrap" style="display: none;"></div>
+            <div id="intro">
+                <div id="intro-head">
+                    <h1>RivETH</h1>
+                    <p><small><em>A local, web-based, open source Ethereum Smart Contract development toolkit.</em></small></p>
                 </div>
 
-                <div id="interaction-panel">
-                    <p>Interact</p>
-                    <p id="contract-balance" style="display: none;"></p>
-                    <ul>
-                        <p>
-                            <small><em>No deployment found. First compile a contract and load it into RivETH.</em></small>
-                        </p>
-                    </ul>
-                </div>
-            </div>
-
-            <div id="tx-details">
-                <div id="details-wrap" style="display: none;"></div>
-                <div id="intro">
-                    <div id="intro-head">
-                        <!-- <div>
-                            <img src="./src/images/RivETH.png" alt="RivETH" width="80">
-                        </div> -->
-                        <h1 style="font-size: 4rem;">RivETH</h1>
-                        <p><small><em>A local, web-based, open source Ethereum Smart Contract development toolkit.</em></small></p>
-                    </div>
-                    
-                    <div id="no-tx">
-                        <p>No transactions found. Deploy a contract first.</p>
-                        <p>OR</p>
-                        <p>
-                            <button id="run-a-workflow">Run a workflow</button>
-                        </p>
-                    </div>
+                <div id="no-tx">
+                    <p>No transactions found. Deploy a contract first.</p>
+                    <div class="divider"><span>or</span></div>
+                    <p>
+                        <button id="run-a-workflow">Run a workflow</button>
+                    </p>
                 </div>
             </div>
+        </section>
 
-            <div id="workflow-logs-wrap">
-                <div id="log-actions">
-                    <button id="close-workflow-panel" title="Close Workflow Panel">Close Panel</button>
-                    <button onclick="this.parentElement.nextElementSibling.innerHTML = ''" title="Clear Workflow Logs">Clear Logs</button>
-                </div>
-                <h3>Workflow Logs</h3>
-                <div id="workflow-logs"></div>
+        <aside id="workflow-logs-wrap" aria-label="Workflow logs">
+            <div id="log-actions">
+                <button id="close-workflow-panel" title="Close Workflow Panel">Close Panel</button>
+                <button onclick="this.parentElement.nextElementSibling.innerHTML = ''" title="Clear Workflow Logs">Clear Logs</button>
             </div>
+            <h3>Workflow Logs</h3>
+            <div id="workflow-logs"></div>
+        </aside>
 
-            <div id="modalbg">
-                <div id="modal">
-                    <button id="close-btn" title="Close">&times;</button>
-                    <p></p>
-                </div>
-            </div>
-        </div>
-        
-        <script src="./src/ui.js"></script>
-    </body>
-</html>
-
-<script type="importmap">
-    {
-        "imports": {
-            "ethers": "./node_modules/ethers/dist/ethers.js"
-        }
-    }
-</script>
-
-<script type="module">
-import { JsonRpcProvider } from "ethers";
-import { ethers } from "ethers";
-
-if (!localStorage.getItem("RivETHSessionData")) {
-    localStorage.setItem("RivETHSessionData", JSON.stringify({
-        lastAccount: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-        lastDeployedContract: ""
-    }));
-}
-
-// elements
-const CONTRACT_NAME = document.querySelector("#contract-name");
-const ACCOUNTS = document.querySelector("#accounts");
-
-// RivETH 
-const RIVETH_URL = location.host.endsWith(".app.github.dev") ? "https://automatic-space-guacamole-jp95j9g96rw25r5g-5500.app.github.dev/" : "http://127.0.0.1:5500/"; // for my GitHub codespace
-const RPC_URL = location.host.endsWith(".app.github.dev") ? "https://automatic-space-guacamole-jp95j9g96rw25r5g-8545.app.github.dev/" : "http://127.0.0.1:8545/"; // for my GitHub codespace
-const provider = new JsonRpcProvider(RPC_URL);
-const contractData = {
-    abi: undefined,
-    bytecode: undefined,
-    address: undefined,
-    hasConstructor: false,
-    constructorParams: 0,
-    isConstructorpayable: false,
-};
-
-const txData = {
-    contractAddress: undefined,
-    hash: undefined,
-    nonce: undefined,
-    type: undefined,
-    blockNumber: undefined,
-    from: undefined,
-    data: undefined,
-    value: undefined,
-    gasPrice: undefined,
-    gasLimit: undefined,
-    gasUsed: undefined,
-    maxFeePerGas: undefined,
-    maxPriorityFeePerGas: undefined
-}
-const txs = [];
-const functions = []; // functions extracted from ABI
-
-let injectedProvider;
-
-// keys for shortcuts
-const KEY_BINDINGS = {
-    l: document.querySelector("#load-contract"),
-    d: document.querySelector("#deploy"),
-    c: document.querySelector("#eth-converter-btn"),
-    t: document.querySelector("#theme-toggler"),
-    a: ACCOUNTS,
-    m: document.querySelector("nav img"),
-    i: document.querySelector("#injected-provider-btn"),
-    w: document.querySelector("#run-a-workflow"),
-}
-    
-window.onload = async function () {
-    try {
-        await loadData();
-    } catch (error) {
-        CREATE_MODAL(`${new Error(error).message}. Cannot connect, is the node running?`);
-    }
-}
-
-CONTRACT_NAME.oninput = function (input) {
-    if (input.target.value.trim().length > 0) {
-        input.target.nextElementSibling.disabled = false;
-    } else {
-        input.target.nextElementSibling.disabled = true;
-    }
-}
-
-async function loadData() {
-    try {
-        const _provider = RPC_URL;
-        const accounts = await provider.listAccounts();
-        const network = await provider._detectNetwork();
-        const blockNumber = await provider.getBlockNumber();
-    
-        document.querySelector("#provider").innerHTML = `<small style='content: ""; width: .525rem; height: .525rem; border-radius: 50%; background-color: #11fd34; display: inline-block; margin-left: .25rem;' title='Connected to Hardhati'></small> ${_provider}`;
-        ACCOUNTS.innerHTML = "";
-        // ACCOUNTS.selectedIndex = 1;
-    
-        accounts.forEach(async (account) => {
-            let accountBalance = Number(await provider.getBalance(account.address)) / 1e18;
-            let formattedAddress = account.address.replace(account.address.substring(7, 35), "....")
-            ACCOUNTS.innerHTML += `<option value=${account.address}>${formattedAddress} (${accountBalance} ETH)</option>`
-        });
-    
-        setTimeout(() => {
-            if (localStorage.getItem("RivETHSessionData")) {
-                const lastAccount = JSON.parse(localStorage.getItem("RivETHSessionData")).lastAccount;
-                ACCOUNTS.value = lastAccount || accounts[0].address;
-                if (txs.length > 0) getContractBalance(contractData.address);
-            }
-        }, 1000);
-
-        // load theme
-        const savedTheme = JSON.parse(localStorage.getItem("RivETHSessionData")).theme;
-        if (savedTheme === "light") {
-            document.querySelector("#csslink").href = "";
-        } else {
-            document.querySelector("#csslink").href = "./src/darkmode.css";
-            document.querySelector("input[type=checkbox]").checked = true;
-        }
-    } catch (error) {
-        CREATE_MODAL(`${new Error(error).message}. Cannot connect, is the node running?`);
-    }
-}
-
-async function getContractBalance(contractAddress) {
-    await provider.getBalance(contractAddress).then(balance => {
-        const contractBalance = ethers.formatEther(balance);
-        document.querySelector("#contract-balance").style.display = "block";
-        document.querySelector("#contract-balance").innerHTML = `<small>Balance: ${contractBalance} ETH</small>`;
-    })
-}
-
-document.querySelector("#load-contract").onclick = async function(e) {
-    try {
-        document.querySelector("#deploy-params").value = "";
-        document.querySelector("#deploy-params").disabled = true;
-
-        const abi = await fetch(`${RIVETH_URL}artifacts/${e.target.previousElementSibling.value.trim()}.abi`);
-        const bin = await fetch(`${RIVETH_URL}artifacts/${e.target.previousElementSibling.value.trim()}.bin`);
-
-        await Promise.all([abi, bin])
-        .then(res => {
-            contractData.abi = res[0].text();
-            contractData.bytecode = res[1].text();
-        })
-            
-        await contractData.abi
-        .then(res => contractData.abi = res);
-            
-        await contractData.bytecode
-        .then(res => contractData.bytecode = res);
-            
-        if (JSON.parse(contractData.abi)[0].type === "constructor" && JSON.parse(contractData.abi)[0].inputs.length > 0) {
-            let constructorParams = [];
-            contractData.hasConstructor = true;
-    
-            JSON.parse(contractData.abi)[0].inputs.forEach(param => {
-                constructorParams.push(param);
-            });
-                
-            document.querySelector("#constructor").style.display = "block";
-            document.querySelector("#deploy-params").placeholder = "";
-            contractData.constructorParams = constructorParams.length;
-
-            if (constructorParams.length === 0) {
-                document.querySelector("#deploy").disabled = true;
-                document.querySelector("#deploy-params").disabled = true;
-                document.querySelector("#deploy-params").placeholder = "No constructor args";
-            } else {
-                document.querySelector("#deploy-params").disabled = false;
-            }
-
-            document.querySelector("#name-of-compiled-contract").textContent = CONTRACT_NAME.value.trim();
-    
-            constructorParams.forEach(param => {
-                document.querySelector("#deploy-params").placeholder += `${param.type} ${param.name}, `
-            });
-    
-            if (JSON.parse(contractData.abi)[0].stateMutability === "payable") {
-                contractData.isConstructorpayable = true;
-            }
-        } else {
-            // alert();
-            document.querySelector("#constructor").style.display = "block";
-            document.querySelector("#deploy").disabled = false;
-            document.querySelector("#deploy-params").disabled = true;
-            document.querySelector("#deploy-params").placeholder = "No constructor found";
-        }
-    } catch (error) {
-        CREATE_MODAL("Error locating compiled contract. Run <pre>./compile [FILE_NAME]</pre> or <pre>make [FILE_NAME]</pre> to compile. Replace [FILE_NAME] with the name of the solidity file you want to compile");
-    }
-}
-
-function createInteractionButtons(entry) {    
-    document.querySelector("#interaction-panel ul").innerHTML += `
-        <li>
-            <div class='wrap'>
-                <div><button data-name="${entry.name || entry.type}" data-outputs=${JSON.stringify(entry.outputs)} id="${entry.name || entry.type}" class='${entry.type !== "receive" && entry.type !== "fallback" ? "contract-function" : ""} ${entry.stateMutability}' title="${entry.name || entry.type} - ${entry.stateMutability}" id="${entry.name}">${entry.name || entry.type}</button></div>
+        <div id="modalbg">
+            <div id="modal" role="dialog" aria-modal="true">
+                <button id="close-btn" title="Close" aria-label="Close">&times;</button>
                 <p></p>
             </div>
-            <output id="result-${entry.name || entry.type}"></output>
-        </li>
-    `;
-}
+        </div>
+    </main>
 
-function getFunctions() {
-    functions.length = 0;
-    const contractABIJSON = JSON.parse(contractData.abi);
-    document.querySelector("#interaction-panel ul").innerHTML = "";
-        
-    contractABIJSON.forEach((entry) => {
-        if (
-            entry.type === "function" &&
-            entry.name && 
-            (
-                entry.stateMutability === 'view' || 
-                entry.stateMutability === 'pure' || 
-                entry.stateMutability === 'nonpayable' || 
-                entry.stateMutability === 'payable'
-            )
-        ) {
-            functions.push(entry);
-            createInteractionButtons(entry);
+    <script src="./src/ui.js"></script>
+    <script type="module">
+        import { JsonRpcProvider } from "ethers";
+        import { ethers } from "ethers";
+
+        if (!localStorage.getItem("RivETHSessionData")) {
+            localStorage.setItem("RivETHSessionData", JSON.stringify({
+                lastAccount: "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
+                lastDeployedContract: ""
+            }));
         }
-    })
 
-    contractABIJSON.forEach(entry => {
-        if (entry.type === "receive" || entry.type === "fallback") {
-            createInteractionButtons(entry);
+        // elements
+        const CONTRACT_NAME = document.querySelector("#contract-name");
+        const ACCOUNTS = document.querySelector("#accounts");
+
+        // RivETH 
+        const RIVETH_URL = location.host.endsWith(".app.github.dev") ? "https://automatic-space-guacamole-jp95j9g96rw25r5g-5500.app.github.dev/" : "http://127.0.0.1:5500/"; // for my GitHub codespace
+        const RPC_URL = location.host.endsWith(".app.github.dev") ? "https://automatic-space-guacamole-jp95j9g96rw25r5g-8545.app.github.dev/" : "http://127.0.0.1:8545/"; // for my GitHub codespace
+        const provider = new JsonRpcProvider(RPC_URL);
+        const contractData = {
+            abi: undefined,
+            bytecode: undefined,
+            address: undefined,
+            hasConstructor: false,
+            constructorParams: 0,
+            isConstructorpayable: false,
+        };
+
+        const txData = {
+            contractAddress: undefined,
+            hash: undefined,
+            nonce: undefined,
+            type: undefined,
+            blockNumber: undefined,
+            from: undefined,
+            data: undefined,
+            value: undefined,
+            gasPrice: undefined,
+            gasLimit: undefined,
+            gasUsed: undefined,
+            maxFeePerGas: undefined,
+            maxPriorityFeePerGas: undefined
         }
-        
-        if (entry.type === "fallback") {
-            document.querySelector("#fallback").parentElement.nextElementSibling.innerHTML = `<input placeholder="Message" id="fallback-message" autocomplete="off" spellcheck="false"/>`
+        const txs = [];
+        const functions = []; // functions extracted from ABI
+
+        let injectedProvider;
+
+        // keys for shortcuts
+        const KEY_BINDINGS = {
+            l: document.querySelector("#load-contract"),
+            d: document.querySelector("#deploy"),
+            c: document.querySelector("#eth-converter-btn"),
+            t: document.querySelector("#theme-toggler"),
+            a: ACCOUNTS,
+            m: document.querySelector("nav img"),
+            i: document.querySelector("#injected-provider-btn"),
+            w: document.querySelector("#run-a-workflow"),
         }
-    })
-    
-    // create inputs for functions with params
-    functions.map((func, ind) => {
-        if (func.name && func.inputs.length !== 0) {
-            func.inputs.map(f => {
-                [...document.querySelectorAll("#interaction-panel ul li div p")][ind].innerHTML += `<input placeholder="${f.type} ${f.name}" data-type="${f.type}" autocomplete="off" spellcheck="false"/>`
-            });
-        }
-    })
-}
-
-function getTxData(transactionData) {
-    document.querySelector("#intro").style.display = "none";
-    document.querySelector("#tx-details #details-wrap").style.display = "block";
-    document.querySelector("#tx-details #details-wrap").innerHTML += `<table id=${transactionData.hash} style="scroll-behavior: smooth;"><caption>✅ Tx: ${transactionData.hash}</caption></table>`;
-
-    for (const key in transactionData) {
-        if (!txData[key]) continue;
-        document.getElementById(transactionData.hash).innerHTML += `
-            <tr>
-                <td>${key}</td>
-                <td id='${key}'>${(key !== "value") && (key !== "gasPrice") && (key !== "gasLimit") && (key !== "maxFeePerGas") && (key !== "maxPriorityFeePerGas") && (key !== "gasUsed") ? transactionData[key] : `${transactionData[key]} wei`} ${key === "gasUsed" ? ` <em>(${(Number(transactionData[key])*100)/Number(transactionData["gasLimit"])}` + "%)</em>" : ""}</td>
-            </tr>
-        `
-    }
-    document.getElementById(transactionData.hash).scrollIntoView();
-}
-
-async function handleFallbackAndReceiveTxs(response, receipt) {
-    for (const key in txData) {
-        txData[key] = response[key] ? response[key] : receipt[key];
-    }
-    txData.gasUsed = receipt.gasUsed;
-
-    let sessionData = JSON.parse(localStorage.getItem("RivETHSessionData"));
-    localStorage.setItem("RivETHSessionData", JSON.stringify({
-        ...sessionData,
-        lastAccount: ACCOUNTS.value
-    }));
-
-    txs.push(await txData);
-
-    getTxData(txData);
-    await loadData();
-}
-    
-document.querySelector("#deploy").onclick = async function() {
-    try {
-        document.querySelector("#tx-details #details-wrap").innerHTML = `Deploying ${CONTRACT_NAME.value.trim()}...`;
-        document.querySelector("#ether").value = 0;
-        const signer = injectedProvider ? await injectedProvider.getSigner() : await provider.getSigner(ACCOUNTS.selectedIndex);
-        const deploymentOverrides = {};
-
-        let deployParams = [];
-        if (contractData.hasConstructor) {
-            if (document.querySelector("#deploy-params").value.trim() !== "") {
-                document.querySelector("#deploy-params").value.trim().split(", ").forEach(param => {
-                    deployParams.push(JSON.parse(param));
-                })
-            }
             
-            if (contractData.isConstructorpayable) {
-                deploymentOverrides.value = ethers.parseEther(document.querySelector("#ether").value.toString());
+        window.onload = async function () {
+            try {
+                await loadData();
+            } catch (error) {
+                CREATE_MODAL(`${new Error(error).message}. Cannot connect, is the node running?`);
             }
         }
-        
-        let contract;
-        const factory = new ethers.ContractFactory(contractData.abi, contractData.bytecode, signer);
-        
-        if (contractData.constructorParams >= 1) {
-            contract = await factory.deploy(...deployParams, deploymentOverrides);
-            await contract.waitForDeployment();
-        } else {
-            contract = await factory.deploy(deploymentOverrides);
-            await contract.waitForDeployment();
-        }
-        const txResponse = await contract.deploymentTransaction();
-        const txReceipt = await txResponse.wait();
 
-        for (const key in txData) {
-            txData[key] = txResponse[key] ? txResponse[key] : txReceipt[key];
-        }
-
-        txData.gasUsed = txReceipt.gasUsed;
-        txData.contractAddress = await contract.getAddress();
-        contractData.address = await contract.getAddress();
-        txs.push(await txData);
-
-        document.querySelector("#tx-details #details-wrap").innerHTML = "";      
-        getTxData(txData);
-        getFunctions();
-        
-        localStorage.setItem("RivETHSessionData", JSON.stringify({
-            lastAccount: ACCOUNTS.value,
-            lastDeployedContract: txData.contractAddress
-        }));
-
-        JSON.parse(contractData.abi).forEach(entry => {
-            if (entry.type === "fallback") {
-                document.querySelector("#fallback").onclick = async function() {
-                    try {
-                        const signer = injectedProvider ? await injectedProvider.getSigner() : await provider.getSigner(ACCOUNTS.selectedIndex);
-
-                        const fallbackTx = await signer.sendTransaction({
-                            to: /*txData.contractAddress || JSON.parse(localStorage.getItem("RivETHSessionData")).lastDeployedContract*/ contract,
-                            value: BigInt(document.querySelector("#ether").value.toString()),
-                            data: document.querySelector("#fallback-message").value.trim()
-                        });
-                        const txReceipt = await fallbackTx.wait();
-                        handleFallbackAndReceiveTxs(fallbackTx, txReceipt);
-                    } catch (error) {
-                        CREATE_MODAL(new Error(error).message);
-                    }
-                } 
-            }
-
-            if (entry.type === "receive") {
-                document.querySelector("#receive").onclick = async function() {
-                    try {
-                        const signer = injectedProvider ? await injectedProvider.getSigner() : await provider.getSigner(ACCOUNTS.selectedIndex);
-
-                        const receiveTx = await signer.sendTransaction({
-                            to: /*txData.contractAddress || JSON.parse(localStorage.getItem("RivETHSessionData")).lastDeployedContract*/ contract,
-                            value: BigInt(document.querySelector("#ether").value.toString()),
-                        });
-                        const txReceipt = await receiveTx.wait();
-                        handleFallbackAndReceiveTxs(receiveTx, txReceipt);
-                    } catch (error) {
-                        CREATE_MODAL(new Error(error).message);
-                    }
-                };
-            }
-        });
-
-        [...document.querySelectorAll(".contract-function")].forEach((btn, ind) => {
-            btn.onclick = async function() {
-                try {
-                    const signer = injectedProvider ? await injectedProvider.getSigner() : await provider.getSigner(ACCOUNTS.selectedIndex);
-
-                    let args = Array.from(btn.parentElement.nextElementSibling.querySelectorAll("input")).map(input => {
-                        
-                        if (input.dataset.type.includes("int") && !input.dataset.type.endsWith("[]")) {
-                            return BigInt(input.value);
-                        } else if (input.dataset.type.substring(0,4) === "byte" || input.dataset.type === "address" || input.dataset.type === "string") {
-                            return JSON.parse(`"${input.value}"`);
-                        } else {
-                            return JSON.parse(input.value);
-                        }
-                        
-                        // return typeof JSON.parse(input.value) === 'number' ? BigInt(input.value) : JSON.parse(input.value);
-                    });
-
-                    const resultElement = btn.parentElement.parentElement.nextElementSibling;
-    
-                    let result;
-                    
-                    if (btn.classList.contains("pure") || btn.classList.contains("view")) {
-                        result = await contract[btn.dataset.name](...args);
-                    } else {
-                        const signer = injectedProvider ? await injectedProvider.getSigner() : await provider.getSigner(ACCOUNTS.selectedIndex);
-                        const contractWithSigner = contract.connect(signer);
-                        const txOptions = {};
-                        
-                        if (btn.classList.contains("payable") && BigInt(document.querySelector("#ether").value) !== 0) {
-                            txOptions.value = BigInt(document.querySelector("#ether").value).toString();
-                        }
-                        
-                        const contractTxResponse = await contractWithSigner[btn.dataset.name](...args, txOptions);
-                        const txReceipt = await contractTxResponse.wait();
-                        
-                        for (const key in txData) {
-                            txData[key] = contractTxResponse[key] ? contractTxResponse[key] : txReceipt[key];
-                        }
-                        txData.gasUsed = txReceipt.gasUsed;
-
-                        let sessionData = JSON.parse(localStorage.getItem("RivETHSessionData"));
-
-                        localStorage.setItem("RivETHSessionData", JSON.stringify({
-                            ...sessionData,
-                            lastAccount: ACCOUNTS.value,
-                        }));
-
-                        txs.push(await txData);
-
-                        getTxData(txData);
-                        await loadData();
-                    }
-                    
-                    if (typeof result === "bigint") {
-                        resultElement.innerHTML = result;
-                    } else {
-                        if (typeof result  === "undefined") result = "";
-                        resultElement.innerHTML = typeof result === "string" ? result.trim() : result;
-                    }
-                } catch (error) {
-                        CREATE_MODAL(new Error(error).message);
-                }
-            }
-        });
-
-        await loadData();
-
-    } catch (error) {
-        CREATE_MODAL(new Error(error).message);
-    }
-}
-
-document.querySelector("#deploy-params").oninput = function(e) {
-    if (contractData.hasConstructor) {
-        if (e.target.value.trim().split(", ").length === contractData.constructorParams && e.target.value.trim().split(", ")[contractData.constructorParams - 1] !== "") {
-            document.querySelector("#deploy").disabled = false;
-        } else {
-            document.querySelector("#deploy").disabled = true;
-        }
-    }
-}
-
-document.querySelector("#eth-converter-btn").onclick = function() {
-    CREATE_MODAL(`
-        <h3>ETH Converter</h3>
-        <div>
-            <div class='converter-field'>
-                <label>WEI </label>
-                <input type="number" min="0" value="1" id="wei" autofocus>
-            </div>
-
-            <div class='converter-field'>
-                <label>GWEI </label>
-                <input type="number" min="0" value=${ethers.formatUnits("1", "gwei")} id="gwei" readonly>
-            </div>
-
-            <div class='converter-field'>
-                <label>ETH </label>
-                <input type="number" min="0" value=${ethers.formatEther("1")} id="ethvalue" readonly>
-            </div>
-        </div>
-    `);
-
-    document.querySelector("#wei").oninput = function(e) {
-        const weiValue = e.target.value;
-        if (weiValue === "") {
-            return;
-        } else if (weiValue < 1) {
-            return;
-        }
-        document.querySelector("#gwei").value = ethers.formatUnits(weiValue.toString(), "gwei");
-        document.querySelector("#ethvalue").value = ethers.formatEther(weiValue.toString());
-    }
-}
-
-document.querySelector("header img").onclick = function() {
-    CREATE_MODAL(`
-    <div class='menu'>
-        <h3>RivETH</h3>
-        <div>
-            <h4>Keyboard shortcuts</h4>
-            <ul>
-                <li>T  Toggle theme</li>
-                <li>L  Load contract</li>
-                <li>W  Run a workflow</li>
-                <li>M  Launch menu</li>
-                <li>A  Switch Accounts</li>
-                <li>C  Launch Converter</li>
-                <li>I  Connect Injected Provider</li>
-                <li>D  Deploy loaded contract</li>
-            </ul>
-            <p>
-                <button class='launch-explorer-btn' onclick="window.open('./explorer/explorer.html')">Launch Explorer</button>
-            </p>
-        </div>
-    </div>
-    `)
-}
-
-document.querySelector("#injected-provider-btn").onclick = async function () {
-    try {
-        if (!injectedProvider) {
-            if (window.ethereum) {
-                injectedProvider = new ethers.BrowserProvider(window.ethereum);
-        
-                await injectedProvider.send("eth_requestAccounts", []);
-                const signer = await injectedProvider.getSigner();
-                const signerAddress = await signer.getAddress();
-                const signerBalance = await provider.getBalance(signerAddress);
-        
-                document.querySelector("#injected-provider-status").title = `Injected Provider - Connected (${signerAddress.replace(signerAddress.substring(7, 35), "....")} - ${Number(signerBalance) / 1e18} ETH)`;
-                ACCOUNTS.value = signerAddress;
-                document.querySelector("#injected-provider-status").style.background = "#11fd34";
-                CREATE_MODAL("Injected provider is now connected");
+        CONTRACT_NAME.oninput = function (input) {
+            if (input.target.value.trim().length > 0) {
+                input.target.nextElementSibling.disabled = false;
             } else {
-                CREATE_MODAL("No injected provider found. Please install a web3 wallet (e.g. MetaMask) and try again.");
+                input.target.nextElementSibling.disabled = true;
             }
-        } else {
-            injectedProvider = undefined;
-
-            document.querySelector("#injected-provider-status").title = "Injected Provider - Disconnected";
-            document.querySelector("#injected-provider-status").style.background = "#fd1134";
-            CREATE_MODAL("Injected provider is now disconnected");
-        } 
-    } catch (error) {
-        CREATE_MODAL(error);
-    }
-}
-
-// keyboard shortcuts
-window.onkeydown = function(e) {
-    if (
-        Object.keys(KEY_BINDINGS).includes(e.key.toLowerCase()) &&
-        document.activeElement === document.querySelector("body") &&
-        !e.ctrlKey &&
-        !e.metaKey &&
-        !e.functionKey
-    ) {
-        window.focus();
-        if (e.key.toLowerCase() === "a") {
-            KEY_BINDINGS[e.key.toLowerCase()].showPicker();
-            return;
         }
-        KEY_BINDINGS[e.key.toLowerCase()].click();
-    }
-}
 
-// workflow/test logic
-
-async function parseWorkFlowFile(file) {
-    try {
-        
-        await fetch(`http://127.0.0.1:5500/tests/${file}.riveth`)
-        
-        .then(res => res.text())
-        .then(data => {
-            let runs = [];
-            let contentArray = data.split("\n").filter(e => e !== "");
+        async function loadData() {
+            try {
+                const _provider = RPC_URL;
+                const accounts = await provider.listAccounts();
+                const network = await provider._detectNetwork();
+                const blockNumber = await provider.getBlockNumber();
             
-            for (let i = 0; i < contentArray.length; i++) {
-                if (contentArray[i].startsWith("function:")) {
-                    let lineContentArray = contentArray[i].split(" ");
-                    runs.push({
-                        functionName: lineContentArray[1],
-                        params: contentArray[i + 1]?.startsWith("params:") ? contentArray[i + 1].split(": ")[1] : undefined,
-                        caller: contentArray[i + 2]?.startsWith("caller:") ? contentArray[i + 2].split(": ")[1] : undefined,
-                        value: contentArray[i + 3]?.startsWith("value:") ? contentArray[i + 3].split(": ")[1] : undefined,
+                document.querySelector("#provider").innerHTML = `<small style='content: ""; width: .525rem; height: .525rem; border-radius: 50%; background-color: #11fd34; display: inline-block; margin-left: .25rem;' title='Connected to Hardhati'></small> ${_provider}`;
+                ACCOUNTS.innerHTML = "";
+                // ACCOUNTS.selectedIndex = 1;
+            
+                accounts.forEach(async (account) => {
+                    let accountBalance = Number(await provider.getBalance(account.address)) / 1e18;
+                    let formattedAddress = account.address.replace(account.address.substring(7, 35), "....")
+                    ACCOUNTS.innerHTML += `<option value=${account.address}>${formattedAddress} (${accountBalance} ETH)</option>`
+                });
+            
+                setTimeout(() => {
+                    if (localStorage.getItem("RivETHSessionData")) {
+                        const lastAccount = JSON.parse(localStorage.getItem("RivETHSessionData")).lastAccount;
+                        ACCOUNTS.value = lastAccount || accounts[0].address;
+                        if (txs.length > 0) getContractBalance(contractData.address);
+                    }
+                }, 1000);
+
+                // load theme
+                const savedTheme = JSON.parse(localStorage.getItem("RivETHSessionData")).theme;
+                if (savedTheme === "light") {
+                    document.querySelector("#csslink").href = "";
+                } else {
+                    document.querySelector("#csslink").href = "./src/darkmode.css";
+                    document.querySelector("input[type=checkbox]").checked = true;
+                }
+            } catch (error) {
+                CREATE_MODAL(`${new Error(error).message}. Cannot connect, is the node running?`);
+            }
+        }
+
+        async function getContractBalance(contractAddress) {
+            await provider.getBalance(contractAddress).then(balance => {
+                const contractBalance = ethers.formatEther(balance);
+                document.querySelector("#contract-balance").style.display = "block";
+                document.querySelector("#contract-balance").innerHTML = `<small>Balance: ${contractBalance} ETH</small>`;
+            })
+        }
+
+        document.querySelector("#load-contract").onclick = async function(e) {
+            try {
+                document.querySelector("#deploy-params").value = "";
+                document.querySelector("#deploy-params").disabled = true;
+
+                const abi = await fetch(`${RIVETH_URL}artifacts/${e.target.previousElementSibling.value.trim()}.abi`);
+                const bin = await fetch(`${RIVETH_URL}artifacts/${e.target.previousElementSibling.value.trim()}.bin`);
+
+                await Promise.all([abi, bin])
+                .then(res => {
+                    contractData.abi = res[0].text();
+                    contractData.bytecode = res[1].text();
+                })
+                    
+                await contractData.abi
+                .then(res => contractData.abi = res);
+                    
+                await contractData.bytecode
+                .then(res => contractData.bytecode = res);
+                    
+                if (JSON.parse(contractData.abi)[0].type === "constructor" && JSON.parse(contractData.abi)[0].inputs.length > 0) {
+                    let constructorParams = [];
+                    contractData.hasConstructor = true;
+            
+                    JSON.parse(contractData.abi)[0].inputs.forEach(param => {
+                        constructorParams.push(param);
+                    });
+                        
+                    document.querySelector("#constructor").style.display = "block";
+                    document.querySelector("#deploy-params").placeholder = "";
+                    contractData.constructorParams = constructorParams.length;
+
+                    if (constructorParams.length === 0) {
+                        document.querySelector("#deploy").disabled = true;
+                        document.querySelector("#deploy-params").disabled = true;
+                        document.querySelector("#deploy-params").placeholder = "No constructor args";
+                    } else {
+                        document.querySelector("#deploy-params").disabled = false;
+                    }
+
+                    document.querySelector("#name-of-compiled-contract").textContent = CONTRACT_NAME.value.trim();
+            
+                    constructorParams.forEach(param => {
+                        document.querySelector("#deploy-params").placeholder += `${param.type} ${param.name}, `
+                    });
+            
+                    if (JSON.parse(contractData.abi)[0].stateMutability === "payable") {
+                        contractData.isConstructorpayable = true;
+                    }
+                } else {
+                    // alert();
+                    document.querySelector("#constructor").style.display = "block";
+                    document.querySelector("#deploy").disabled = false;
+                    document.querySelector("#deploy-params").disabled = true;
+                    document.querySelector("#deploy-params").placeholder = "No constructor found";
+                }
+            } catch (error) {
+                CREATE_MODAL("Error locating compiled contract. Run <pre>./compile [FILE_NAME]</pre> or <pre>make [FILE_NAME]</pre> to compile. Replace [FILE_NAME] with the name of the solidity file you want to compile");
+            }
+        }
+
+        function createInteractionButtons(entry) {    
+            document.querySelector("#interaction-panel ul").innerHTML += `
+                <li>
+                    <div class='wrap'>
+                        <div><button data-name="${entry.name || entry.type}" data-outputs=${JSON.stringify(entry.outputs)} id="${entry.name || entry.type}" class='${entry.type !== "receive" && entry.type !== "fallback" ? "contract-function" : ""} ${entry.stateMutability}' title="${entry.name || entry.type} - ${entry.stateMutability}" id="${entry.name}">${entry.name || entry.type}</button></div>
+                        <p></p>
+                    </div>
+                    <output id="result-${entry.name || entry.type}"></output>
+                </li>
+            `;
+        }
+
+        function getFunctions() {
+            functions.length = 0;
+            const contractABIJSON = JSON.parse(contractData.abi);
+            document.querySelector("#interaction-panel ul").innerHTML = "";
+                
+            contractABIJSON.forEach((entry) => {
+                if (
+                    entry.type === "function" &&
+                    entry.name && 
+                    (
+                        entry.stateMutability === 'view' || 
+                        entry.stateMutability === 'pure' || 
+                        entry.stateMutability === 'nonpayable' || 
+                        entry.stateMutability === 'payable'
+                    )
+                ) {
+                    functions.push(entry);
+                    createInteractionButtons(entry);
+                }
+            })
+
+            contractABIJSON.forEach(entry => {
+                if (entry.type === "receive" || entry.type === "fallback") {
+                    createInteractionButtons(entry);
+                }
+                
+                if (entry.type === "fallback") {
+                    document.querySelector("#fallback").parentElement.nextElementSibling.innerHTML = `<input placeholder="Message" id="fallback-message" autocomplete="off" spellcheck="false"/>`
+                }
+            })
+            
+            // create inputs for functions with params
+            functions.map((func, ind) => {
+                if (func.name && func.inputs.length !== 0) {
+                    func.inputs.map(f => {
+                        [...document.querySelectorAll("#interaction-panel ul li div p")][ind].innerHTML += `<input placeholder="${f.type} ${f.name}" data-type="${f.type}" autocomplete="off" spellcheck="false"/>`
                     });
                 }
+            })
+        }
+
+        function getTxData(transactionData) {
+            document.querySelector("#intro").style.display = "none";
+            document.querySelector("#tx-details #details-wrap").style.display = "block";
+            document.querySelector("#tx-details #details-wrap").innerHTML += `<table id=${transactionData.hash} style="scroll-behavior: smooth;"><caption>✅ Tx: ${transactionData.hash}</caption></table>`;
+
+            for (const key in transactionData) {
+                if (!txData[key]) continue;
+                document.getElementById(transactionData.hash).innerHTML += `
+                    <tr>
+                        <td>${key}</td>
+                        <td id='${key}'>${(key !== "value") && (key !== "gasPrice") && (key !== "gasLimit") && (key !== "maxFeePerGas") && (key !== "maxPriorityFeePerGas") && (key !== "gasUsed") ? transactionData[key] : `${transactionData[key]} wei`} ${key === "gasUsed" ? ` <em>(${(Number(transactionData[key])*100)/Number(transactionData["gasLimit"])}` + "%)</em>" : ""}</td>
+                    </tr>
+                `
             }
+            document.getElementById(transactionData.hash).scrollIntoView();
+        }
 
-            runWorkFlow(file, runs);
-        });
-    } catch (error) {
-        logWorkFlow(new Error(error).message, "error");
-    }
-}
+        async function handleFallbackAndReceiveTxs(response, receipt) {
+            for (const key in txData) {
+                txData[key] = response[key] ? response[key] : receipt[key];
+            }
+            txData.gasUsed = receipt.gasUsed;
 
-// simulate delay
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+            let sessionData = JSON.parse(localStorage.getItem("RivETHSessionData"));
+            localStorage.setItem("RivETHSessionData", JSON.stringify({
+                ...sessionData,
+                lastAccount: ACCOUNTS.value
+            }));
 
-async function runWorkFlow(contractName, runArray) {
-    try {
-        let args;
+            txs.push(await txData);
 
-        // load contract into RivETH
-        document.querySelector('#contract-name').value = contractName;
-        document.querySelector("#load-contract").disabled = false;
-        await document.querySelector("#load-contract").click();
-
-        await delay(500);
-    
-        // deploy
-        if (runArray[0].functionName === "_") {
-            document.querySelector("#deploy-params").value = runArray[0].params;
-            document.querySelector("#deploy").disabled = false;
-
-            await delay(500);
-            await document.querySelector("#deploy").click();
-            getFunctions();
             getTxData(txData);
-            await delay(500);
-
-            logWorkFlow("<hr/>", "ok");
-            logWorkFlow("Setting up workflow...", "ok");
-            logWorkFlow(`Deploying ${contractName} contract...`, "ok");
-
-            await delay(1000);
-            logWorkFlow(`Success. Deployed ${contractName} contract at ${document.querySelector("#contractAddress").innerHTML}`, "ok");
+            await loadData();
         }
             
-            // call functions
-            for (let i = 0; i < runArray.length; i++) {
-                if (runArray[i].functionName !== "_") {
-                    if (runArray[i].params) {
-                        args = runArray[i].params.split(",");
+        document.querySelector("#deploy").onclick = async function() {
+            try {
+                document.querySelector("#tx-details #details-wrap").innerHTML = `Deploying ${CONTRACT_NAME.value.trim()}...`;
+                document.querySelector("#ether").value = 0;
+                const signer = injectedProvider ? await injectedProvider.getSigner() : await provider.getSigner(ACCOUNTS.selectedIndex);
+                const deploymentOverrides = {};
 
-                        for (let j = 0; j < args.length; j++) {
-                            // add params
-                            await delay(500);
-                            [...document.querySelector(`#${runArray[i].functionName}`).parentElement.nextElementSibling.querySelectorAll("input")][j].value = args[j].trim();
-                            await delay(500);
+                let deployParams = [];
+                if (contractData.hasConstructor) {
+                    if (document.querySelector("#deploy-params").value.trim() !== "") {
+                        document.querySelector("#deploy-params").value.trim().split(", ").forEach(param => {
+                            deployParams.push(JSON.parse(param));
+                        })
+                    }
+                    
+                    if (contractData.isConstructorpayable) {
+                        deploymentOverrides.value = ethers.parseEther(document.querySelector("#ether").value.toString());
+                    }
+                }
+                
+                let contract;
+                const factory = new ethers.ContractFactory(contractData.abi, contractData.bytecode, signer);
+                
+                if (contractData.constructorParams >= 1) {
+                    contract = await factory.deploy(...deployParams, deploymentOverrides);
+                    await contract.waitForDeployment();
+                } else {
+                    contract = await factory.deploy(deploymentOverrides);
+                    await contract.waitForDeployment();
+                }
+                const txResponse = await contract.deploymentTransaction();
+                const txReceipt = await txResponse.wait();
+
+                for (const key in txData) {
+                    txData[key] = txResponse[key] ? txResponse[key] : txReceipt[key];
+                }
+
+                txData.gasUsed = txReceipt.gasUsed;
+                txData.contractAddress = await contract.getAddress();
+                contractData.address = await contract.getAddress();
+                txs.push(await txData);
+
+                document.querySelector("#tx-details #details-wrap").innerHTML = "";      
+                getTxData(txData);
+                getFunctions();
+                
+                localStorage.setItem("RivETHSessionData", JSON.stringify({
+                    lastAccount: ACCOUNTS.value,
+                    lastDeployedContract: txData.contractAddress
+                }));
+
+                JSON.parse(contractData.abi).forEach(entry => {
+                    if (entry.type === "fallback") {
+                        document.querySelector("#fallback").onclick = async function() {
+                            try {
+                                const signer = injectedProvider ? await injectedProvider.getSigner() : await provider.getSigner(ACCOUNTS.selectedIndex);
+
+                                const fallbackTx = await signer.sendTransaction({
+                                    to: /*txData.contractAddress || JSON.parse(localStorage.getItem("RivETHSessionData")).lastDeployedContract*/ contract,
+                                    value: BigInt(document.querySelector("#ether").value.toString()),
+                                    data: document.querySelector("#fallback-message").value.trim()
+                                });
+                                const txReceipt = await fallbackTx.wait();
+                                handleFallbackAndReceiveTxs(fallbackTx, txReceipt);
+                            } catch (error) {
+                                CREATE_MODAL(new Error(error).message);
+                            }
+                        } 
+                    }
+
+                    if (entry.type === "receive") {
+                        document.querySelector("#receive").onclick = async function() {
+                            try {
+                                const signer = injectedProvider ? await injectedProvider.getSigner() : await provider.getSigner(ACCOUNTS.selectedIndex);
+
+                                const receiveTx = await signer.sendTransaction({
+                                    to: /*txData.contractAddress || JSON.parse(localStorage.getItem("RivETHSessionData")).lastDeployedContract*/ contract,
+                                    value: BigInt(document.querySelector("#ether").value.toString()),
+                                });
+                                const txReceipt = await receiveTx.wait();
+                                handleFallbackAndReceiveTxs(receiveTx, txReceipt);
+                            } catch (error) {
+                                CREATE_MODAL(new Error(error).message);
+                            }
+                        };
+                    }
+                });
+
+                [...document.querySelectorAll(".contract-function")].forEach((btn, ind) => {
+                    btn.onclick = async function() {
+                        try {
+                            const signer = injectedProvider ? await injectedProvider.getSigner() : await provider.getSigner(ACCOUNTS.selectedIndex);
+
+                            let args = Array.from(btn.parentElement.nextElementSibling.querySelectorAll("input")).map(input => {
+                                
+                                if (input.dataset.type.includes("int") && !input.dataset.type.endsWith("[]")) {
+                                    return BigInt(input.value);
+                                } else if (input.dataset.type.substring(0,4) === "byte" || input.dataset.type === "address" || input.dataset.type === "string") {
+                                    return JSON.parse(`"${input.value}"`);
+                                } else {
+                                    return JSON.parse(input.value);
+                                }
+                                
+                                // return typeof JSON.parse(input.value) === 'number' ? BigInt(input.value) : JSON.parse(input.value);
+                            });
+
+                            const resultElement = btn.parentElement.parentElement.nextElementSibling;
+            
+                            let result;
+                            
+                            if (btn.classList.contains("pure") || btn.classList.contains("view")) {
+                                result = await contract[btn.dataset.name](...args);
+                            } else {
+                                const signer = injectedProvider ? await injectedProvider.getSigner() : await provider.getSigner(ACCOUNTS.selectedIndex);
+                                const contractWithSigner = contract.connect(signer);
+                                const txOptions = {};
+                                
+                                if (btn.classList.contains("payable") && BigInt(document.querySelector("#ether").value) !== 0) {
+                                    txOptions.value = BigInt(document.querySelector("#ether").value).toString();
+                                }
+                                
+                                const contractTxResponse = await contractWithSigner[btn.dataset.name](...args, txOptions);
+                                const txReceipt = await contractTxResponse.wait();
+                                
+                                for (const key in txData) {
+                                    txData[key] = contractTxResponse[key] ? contractTxResponse[key] : txReceipt[key];
+                                }
+                                txData.gasUsed = txReceipt.gasUsed;
+
+                                let sessionData = JSON.parse(localStorage.getItem("RivETHSessionData"));
+
+                                localStorage.setItem("RivETHSessionData", JSON.stringify({
+                                    ...sessionData,
+                                    lastAccount: ACCOUNTS.value,
+                                }));
+
+                                txs.push(await txData);
+
+                                getTxData(txData);
+                                await loadData();
+                            }
+                            
+                            if (typeof result === "bigint") {
+                                resultElement.innerHTML = result;
+                            } else {
+                                if (typeof result  === "undefined") result = "";
+                                resultElement.innerHTML = typeof result === "string" ? result.trim() : result;
+                            }
+                        } catch (error) {
+                                CREATE_MODAL(new Error(error).message);
+                        }
+                    }
+                });
+
+                await loadData();
+
+            } catch (error) {
+                CREATE_MODAL(new Error(error).message);
+            }
+        }
+
+        document.querySelector("#deploy-params").oninput = function(e) {
+            if (contractData.hasConstructor) {
+                if (e.target.value.trim().split(", ").length === contractData.constructorParams && e.target.value.trim().split(", ")[contractData.constructorParams - 1] !== "") {
+                    document.querySelector("#deploy").disabled = false;
+                } else {
+                    document.querySelector("#deploy").disabled = true;
+                }
+            }
+        }
+
+        document.querySelector("#eth-converter-btn").onclick = function() {
+            CREATE_MODAL(`
+                <h3>ETH Converter</h3>
+                <div>
+                    <div class='converter-field'>
+                        <label>WEI </label>
+                        <input type="number" min="0" value="1" id="wei" autofocus>
+                    </div>
+
+                    <div class='converter-field'>
+                        <label>GWEI </label>
+                        <input type="number" min="0" value=${ethers.formatUnits("1", "gwei")} id="gwei" readonly>
+                    </div>
+
+                    <div class='converter-field'>
+                        <label>ETH </label>
+                        <input type="number" min="0" value=${ethers.formatEther("1")} id="ethvalue" readonly>
+                    </div>
+                </div>
+            `);
+
+            document.querySelector("#wei").oninput = function(e) {
+                const weiValue = e.target.value;
+                if (weiValue === "") {
+                    return;
+                } else if (weiValue < 1) {
+                    return;
+                }
+                document.querySelector("#gwei").value = ethers.formatUnits(weiValue.toString(), "gwei");
+                document.querySelector("#ethvalue").value = ethers.formatEther(weiValue.toString());
+            }
+        }
+
+        document.querySelector("header img").onclick = function() {
+            CREATE_MODAL(`
+            <div class='menu'>
+                <h3>RivETH</h3>
+                <div>
+                    <h4>Keyboard shortcuts</h4>
+                    <ul>
+                        <li>T  Toggle theme</li>
+                        <li>L  Load contract</li>
+                        <li>W  Run a workflow</li>
+                        <li>M  Launch menu</li>
+                        <li>A  Switch Accounts</li>
+                        <li>C  Launch Converter</li>
+                        <li>I  Connect Injected Provider</li>
+                        <li>D  Deploy loaded contract</li>
+                    </ul>
+                    <p>
+                        <button class='launch-explorer-btn' onclick="window.open('./explorer/explorer.html')">Launch Explorer</button>
+                    </p>
+                </div>
+            </div>
+            `)
+        }
+
+        document.querySelector("#injected-provider-btn").onclick = async function () {
+            try {
+                if (!injectedProvider) {
+                    if (window.ethereum) {
+                        injectedProvider = new ethers.BrowserProvider(window.ethereum);
+                
+                        await injectedProvider.send("eth_requestAccounts", []);
+                        const signer = await injectedProvider.getSigner();
+                        const signerAddress = await signer.getAddress();
+                        const signerBalance = await provider.getBalance(signerAddress);
+                
+                        document.querySelector("#injected-provider-status").title = `Injected Provider - Connected (${signerAddress.replace(signerAddress.substring(7, 35), "....")} - ${Number(signerBalance) / 1e18} ETH)`;
+                        ACCOUNTS.value = signerAddress;
+                        document.querySelector("#injected-provider-status").style.background = "#11fd34";
+                        CREATE_MODAL("Injected provider is now connected");
+                    } else {
+                        CREATE_MODAL("No injected provider found. Please install a web3 wallet (e.g. MetaMask) and try again.");
+                    }
+                } else {
+                    injectedProvider = undefined;
+
+                    document.querySelector("#injected-provider-status").title = "Injected Provider - Disconnected";
+                    document.querySelector("#injected-provider-status").style.background = "#fd1134";
+                    CREATE_MODAL("Injected provider is now disconnected");
+                } 
+            } catch (error) {
+                CREATE_MODAL(error);
+            }
+        }
+
+        // keyboard shortcuts
+        window.onkeydown = function(e) {
+            const key = e.key.toLowerCase();
+            const activeElement = document.activeElement;
+            const isTypingField = activeElement && (
+                activeElement.tagName === "INPUT" ||
+                activeElement.tagName === "TEXTAREA" ||
+                activeElement.tagName === "SELECT" ||
+                activeElement.isContentEditable
+            );
+
+            if (
+                Object.keys(KEY_BINDINGS).includes(key) &&
+                !isTypingField &&
+                !e.ctrlKey &&
+                !e.metaKey &&
+                !e.altKey &&
+                !e.functionKey
+            ) {
+                e.preventDefault();
+                window.focus();
+
+                if (key === "a") {
+                    KEY_BINDINGS[key].showPicker();
+                    return;
+                }
+
+                KEY_BINDINGS[key].click();
+            }
+        }
+
+        // workflow/test logic
+
+        async function parseWorkFlowFile(file) {
+            try {
+                
+                await fetch(`http://127.0.0.1:5500/tests/${file}.riveth`)
+                
+                .then(res => res.text())
+                .then(data => {
+                    let runs = [];
+                    let contentArray = data.split("\n").filter(e => e !== "");
+                    
+                    for (let i = 0; i < contentArray.length; i++) {
+                        if (contentArray[i].startsWith("function:")) {
+                            let lineContentArray = contentArray[i].split(" ");
+                            runs.push({
+                                functionName: lineContentArray[1],
+                                params: contentArray[i + 1]?.startsWith("params:") ? contentArray[i + 1].split(": ")[1] : undefined,
+                                caller: contentArray[i + 2]?.startsWith("caller:") ? contentArray[i + 2].split(": ")[1] : undefined,
+                                value: contentArray[i + 3]?.startsWith("value:") ? contentArray[i + 3].split(": ")[1] : undefined,
+                            });
                         }
                     }
 
-                    if (runArray[i].value) {
-                        await delay(500);
-                        document.querySelector("#ether").value = Number(runArray[i].value);
-                        await delay(500);
-                    }
-                    
-                    if (runArray[i].caller) {
-                        await delay(500);
-                        document.querySelector("#accounts").value = runArray[i].caller;
-                        await delay(1000);
-                    }
-                    
-                    await delay(500);
-                    logWorkFlow(`Calling ${runArray[i].functionName}(${runArray[i].params ? args.join(",") : ''})...`, "ok");
-                    await delay(500);
-                    await document.querySelector(`#${runArray[i].functionName}`).click();
-                    logWorkFlow(`Success. Called function: ${runArray[i].functionName}(${runArray[i].params ? args.join(",") : ''})`, "ok");
-                    document.querySelector("#workflow-logs-wrap").scrollTo(0, window.innerHeight);
-                    await delay(500);
-
-                    if (document.querySelector(`#result-${runArray[i].functionName}`).innerHTML !== '') {
-                        logWorkFlow(`Return: ${document.querySelector(`#result-${runArray[i].functionName}`).innerHTML}`, "ok");
-                    }
-                }
+                    runWorkFlow(file, runs);
+                });
+            } catch (error) {
+                logWorkFlow(new Error(error).message, "error");
             }
-            logWorkFlow("Workflow completed", "ok");
-            document.querySelector("#workflow-logs-wrap").scrollTo(0, window.innerHeight);
-    } catch (error) {
-        logWorkFlow("Error: An error occured during the workflow, ensure the functions you are calling are defined in your contract and the functions are called with the valid parameters.", "error");
-    }
-}
+        }
 
-// parseWorkFlowFile("ERC20");
+        // simulate delay
+        const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-document.querySelector("#run-a-workflow").onclick = function() {
-    CREATE_MODAL(`
-        <div style='padding: .65rem'>
-            <p>Workflows allows you to automate smart contract deployment and interactions</p><br/>
-            <input type='text' placeholder='Contract Name'/>    
-            <button id='run-btn' style='font-size: .85rem; background: #0075d4; padding: .25rem; font-weight: normal'>Run</button>
-        </div>
-    `);
+        async function runWorkFlow(contractName, runArray) {
+            try {
+                let args;
 
-    document.querySelector("#run-btn").onclick = function (e) {
-        parseWorkFlowFile(e.target.previousElementSibling.value.trim());
-        document.querySelector("#modalbg").style.display = "none";
-        document.querySelector("#workflow-logs-wrap").style.display = "block";
-        document.querySelector("#contract-area").style.gridTemplateColumns = "1.5fr 6fr 2.5fr";
-    }
+                // load contract into RivETH
+                document.querySelector('#contract-name').value = contractName;
+                document.querySelector("#load-contract").disabled = false;
+                await document.querySelector("#load-contract").click();
 
-    document.querySelector("#close-workflow-panel").onclick = function(e) {
-        document.querySelector('#contract-area').style.gridTemplateColumns = '1.5fr 6fr';
-        document.querySelector("#workflow-logs-wrap").style.display = 'none';
-    }
-}
+                await delay(500);
+            
+                // deploy
+                if (runArray[0].functionName === "_") {
+                    document.querySelector("#deploy-params").value = runArray[0].params;
+                    document.querySelector("#deploy").disabled = false;
 
-function logWorkFlow(update, status) {
-    document.querySelector("#workflow-logs").innerHTML += `<p style='color: ${status === "ok" ? '#11ff11' : '#ff1111'}'>=> ${update}</p>`;
-}
+                    await delay(500);
+                    await document.querySelector("#deploy").click();
+                    getFunctions();
+                    getTxData(txData);
+                    await delay(500);
 
-</script>
+                    logWorkFlow("<hr/>", "ok");
+                    logWorkFlow("Setting up workflow...", "ok");
+                    logWorkFlow(`Deploying ${contractName} contract...`, "ok");
+
+                    await delay(1000);
+                    logWorkFlow(`Success. Deployed ${contractName} contract at ${document.querySelector("#contractAddress").innerHTML}`, "ok");
+                }
+                    
+                    // call functions
+                    for (let i = 0; i < runArray.length; i++) {
+                        if (runArray[i].functionName !== "_") {
+                            if (runArray[i].params) {
+                                args = runArray[i].params.split(",");
+
+                                for (let j = 0; j < args.length; j++) {
+                                    // add params
+                                    await delay(500);
+                                    [...document.querySelector(`#${runArray[i].functionName}`).parentElement.nextElementSibling.querySelectorAll("input")][j].value = args[j].trim();
+                                    await delay(500);
+                                }
+                            }
+
+                            if (runArray[i].value) {
+                                await delay(500);
+                                document.querySelector("#ether").value = Number(runArray[i].value);
+                                await delay(500);
+                            }
+                            
+                            if (runArray[i].caller) {
+                                await delay(500);
+                                document.querySelector("#accounts").value = runArray[i].caller;
+                                await delay(1000);
+                            }
+                            
+                            await delay(500);
+                            logWorkFlow(`Calling ${runArray[i].functionName}(${runArray[i].params ? args.join(",") : ''})...`, "ok");
+                            await delay(500);
+                            await document.querySelector(`#${runArray[i].functionName}`).click();
+                            logWorkFlow(`Success. Called function: ${runArray[i].functionName}(${runArray[i].params ? args.join(",") : ''})`, "ok");
+                            document.querySelector("#workflow-logs-wrap").scrollTo(0, window.innerHeight);
+                            await delay(500);
+
+                            if (document.querySelector(`#result-${runArray[i].functionName}`).innerHTML !== '') {
+                                logWorkFlow(`Return: ${document.querySelector(`#result-${runArray[i].functionName}`).innerHTML}`, "ok");
+                            }
+                        }
+                    }
+                    logWorkFlow("Workflow completed", "ok");
+                    document.querySelector("#workflow-logs-wrap").scrollTo(0, window.innerHeight);
+            } catch (error) {
+                logWorkFlow("Error: An error occured during the workflow, ensure the functions you are calling are defined in your contract and the functions are called with the valid parameters.", "error");
+            }
+        }
+
+        // parseWorkFlowFile("ERC20");
+
+        document.querySelector("#run-a-workflow").onclick = function() {
+            CREATE_MODAL(`
+                <div style='padding: .65rem'>
+                    <p>Workflows allows you to automate smart contract deployment and interactions</p><br/>
+                    <input type='text' placeholder='Contract Name'/>    
+                    <button id='run-btn' style='font-size: .85rem; background: #0075d4; padding: .25rem; font-weight: normal'>Run</button>
+                </div>
+            `);
+
+            document.querySelector("#run-btn").onclick = function (e) {
+                parseWorkFlowFile(e.target.previousElementSibling.value.trim());
+                document.querySelector("#modalbg").style.display = "none";
+                document.querySelector("#workflow-logs-wrap").style.display = "block";
+                document.querySelector("#contract-area").style.gridTemplateColumns = "1.5fr 6fr 2.5fr";
+            }
+
+            document.querySelector("#close-workflow-panel").onclick = function(e) {
+                document.querySelector('#contract-area').style.gridTemplateColumns = '1.5fr 6fr';
+                document.querySelector("#workflow-logs-wrap").style.display = 'none';
+            }
+        }
+
+        function logWorkFlow(update, status) {
+            document.querySelector("#workflow-logs").innerHTML += `<p style='color: ${status === "ok" ? '#11ff11' : '#ff1111'}'>=> ${update}</p>`;
+        }
+    </script>
+</body>
+</html>
