@@ -5,7 +5,7 @@
 ---
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Latest%20Release-v1.7.2-6366f1?style=for-the-badge&logo=github&logoColor=white" alt="Latest Release" />
+  <img src="https://img.shields.io/badge/Latest%20Release-v1.7.3-6366f1?style=for-the-badge&logo=github&logoColor=white" alt="Latest Release" />
   <a href="https://www.alchemy.com/dapps/riveth">
     <img src="https://img.shields.io/badge/Alchemy-Listed-0052FF?style=for-the-badge&logo=alchemy&logoColor=white" alt="Listed in Alchemy" />
   </a>
