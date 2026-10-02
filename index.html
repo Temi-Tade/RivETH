@@ -150,8 +150,8 @@ const CONTRACT_NAME = document.querySelector("#contract-name");
 const ACCOUNTS = document.querySelector("#accounts");
 
 // RivETH 
-const RIVETH_URL = location.host.endsWith(".app.github.dev") ? "https://automatic-space-guacamole-jp95j9g96rw25r5g-5500.app.github.dev/" : "http://127.0.0.1:5500/"; // for my GitHub codespace
-const RPC_URL = location.host.endsWith(".app.github.dev") ? "https://automatic-space-guacamole-jp95j9g96rw25r5g-8545.app.github.dev/" : "http://127.0.0.1:8545/"; // for my GitHub codespace
+const RIVETH_URL = location.href; // for my GitHub codespace
+const RPC_URL = location.href.replace("5500", "8545"); // for my GitHub codespace
 const provider = new JsonRpcProvider(RPC_URL);
 const contractData = {
     abi: undefined,
@@ -686,7 +686,7 @@ window.onkeydown = function(e) {
 async function parseWorkFlowFile(file) {
     try {
         
-        await fetch(`http://127.0.0.1:5500/tests/${file}.riveth`)
+        await fetch(`${location.href}tests/${file}.riveth`)
         
         .then(res => res.text())
         .then(data => {
