@@ -14,14 +14,14 @@
             <nav>
                 <img src="./src/images/RivETH.png" alt="RivETH" width="50" title="Open Menu">
                 
-                <div>RPC URL: <span id="provider"><small style="color: red;">Cannot connect to Hardhat node</small></span></div>
+                <div>RPC URL: <span id="provider" style="font-size: .85rem;"><small style="color: red;">Cannot connect to Hardhat node</small></span></div>
                 <div>
                     Accounts:<br/>
                     <p style="display: flex; align-items: center;">
                         <span id="injected-provider-status" title="Injected Provider - Disconnected"></span>
                         <select id="accounts">
                             <option value="---">---</option>
-                        </select>
+                        </select>&nbsp;
                         <button id="copy-btn" onclick="COPY_ADDRESS(this)" title="Copy Address"></button>
                         <span style="display: none;">✅</span>
                     </p>
@@ -106,11 +106,13 @@
             </div>
 
             <div id="workflow-logs-wrap">
-                <div id="log-actions">
-                    <button id="close-workflow-panel" title="Close Workflow Panel">Close Panel</button>
-                    <button onclick="this.parentElement.nextElementSibling.innerHTML = ''" title="Clear Workflow Logs">Clear Logs</button>
+                <div id="log-header">
+                    <h3>Workflow Logs</h3>
+                    <div id="log-actions">
+                        <button id="close-workflow-panel" title="Close Workflow Panel">Close</button>
+                        <button onclick="this.parentElement.parentElement.nextElementSibling.innerHTML = ''" title="Clear Workflow Logs">Clear</button>
+                    </div>
                 </div>
-                <h3>Workflow Logs</h3>
                 <div id="workflow-logs"></div>
             </div>
 
@@ -217,7 +219,7 @@ async function loadData() {
         const network = await provider._detectNetwork();
         const blockNumber = await provider.getBlockNumber();
     
-        document.querySelector("#provider").innerHTML = `<small style='content: ""; width: .525rem; height: .525rem; border-radius: 50%; background-color: #11fd34; display: inline-block; margin-left: .25rem;' title='Connected to Hardhati'></small> ${_provider}`;
+        document.querySelector("#provider").innerHTML = `<small style='content: ""; width: .525rem; height: .525rem; border-radius: 50%; background-color: #11fd34; display: inline-block; margin-left: .25rem; font-size: .5rem' title='Connected to Hardhat'></small> ${_provider.startsWith("http://127") ? _provider : `${_provider.substring(0, 25)}...`}`;
         ACCOUNTS.innerHTML = "";
         // ACCOUNTS.selectedIndex = 1;
     
@@ -719,75 +721,102 @@ async function runWorkFlow(contractName, runArray) {
     try {
         let args;
 
-        // load contract into RivETH
+        // Load contract into RivETH
         document.querySelector('#contract-name').value = contractName;
-        document.querySelector("#load-contract").disabled = false;
-        await document.querySelector("#load-contract").click();
+        const loadBtn = document.querySelector("#load-contract");
+        loadBtn.disabled = false;
+        loadBtn.dispatchEvent(new Event('change', { bubbles: true }));
+        loadBtn.click();
 
         await delay(500);
-    
-        // deploy
-        if (runArray[0].functionName === "_") {
-            document.querySelector("#deploy-params").value = runArray[0].params;
-            document.querySelector("#deploy").disabled = false;
+        
+        //Log workflow setup before triggering actions
+        logWorkFlow("<hr/>", "ok");
+        logWorkFlow("Setting up workflow...", "ok");
 
-            await delay(500);
-            await document.querySelector("#deploy").click();
-            getFunctions();
-            getTxData(txData);
-            await delay(500);
-
-            logWorkFlow("<hr/>", "ok");
-            logWorkFlow("Setting up workflow...", "ok");
+        // Deploy
+        if (runArray[0] && runArray[0].functionName === "_") {
             logWorkFlow(`Deploying ${contractName} contract...`, "ok");
 
-            await delay(1000);
-            logWorkFlow(`Success. Deployed ${contractName} contract at ${document.querySelector("#contractAddress").innerHTML}`, "ok");
+            const deployParams = document.querySelector("#deploy-params");
+            deployParams.value = runArray[0].params || "";
+            deployParams.dispatchEvent(new Event('input', { bubbles: true })); // Ensure UI registers the value
+
+            const deployBtn = document.querySelector("#deploy");
+            deployBtn.disabled = false;
+            
+            await delay(500);
+            deployBtn.click();
+            
+            // Allow EVM and UI to process the deployment tx
+            await delay(1500); 
+
+            // get deployment tx  details and functions in the contract
+            if (typeof getFunctions === 'function') getFunctions();
+            if (typeof getTxData === 'function') getTxData(txData);
+            
+            await delay(500);
+
+            const addressElem = document.querySelector("#contractAddress");
+            const deployedAddress = addressElem ? addressElem.innerHTML : "unknown";
+            logWorkFlow(`Success. Deployed ${contractName} contract at ${deployedAddress}`, "ok");
         }
             
-            // call functions
-            for (let i = 0; i < runArray.length; i++) {
-                if (runArray[i].functionName !== "_") {
-                    if (runArray[i].params) {
-                        args = runArray[i].params.split(",");
+        // Call functions
+        for (let i = 0; i < runArray.length; i++) {
+            if (runArray[i].functionName !== "_") {
+                if (runArray[i].params) {
+                    args = runArray[i].params.split(",");
 
-                        for (let j = 0; j < args.length; j++) {
-                            // add params
-                            await delay(500);
-                            [...document.querySelector(`#${runArray[i].functionName}`).parentElement.nextElementSibling.querySelectorAll("input")][j].value = args[j].trim();
-                            await delay(500);
+                    for (let j = 0; j < args.length; j++) {
+                        await delay(500);
+                        const targetInput = [...document.querySelector(`#${runArray[i].functionName}`).parentElement.nextElementSibling.querySelectorAll("input")][j];
+                        if (targetInput) {
+                            targetInput.value = args[j].trim();
+                            targetInput.dispatchEvent(new Event('input', { bubbles: true }));
                         }
-                    }
-
-                    if (runArray[i].value) {
                         await delay(500);
-                        document.querySelector("#ether").value = Number(runArray[i].value);
-                        await delay(500);
-                    }
-                    
-                    if (runArray[i].caller) {
-                        await delay(500);
-                        document.querySelector("#accounts").value = runArray[i].caller;
-                        await delay(1000);
-                    }
-                    
-                    await delay(500);
-                    logWorkFlow(`Calling ${runArray[i].functionName}(${runArray[i].params ? args.join(",") : ''})...`, "ok");
-                    await delay(500);
-                    await document.querySelector(`#${runArray[i].functionName}`).click();
-                    logWorkFlow(`Success. Called function: ${runArray[i].functionName}(${runArray[i].params ? args.join(",") : ''})`, "ok");
-                    document.querySelector("#workflow-logs-wrap").scrollTo(0, window.innerHeight);
-                    await delay(500);
-
-                    if (document.querySelector(`#result-${runArray[i].functionName}`).innerHTML !== '') {
-                        logWorkFlow(`Return: ${document.querySelector(`#result-${runArray[i].functionName}`).innerHTML}`, "ok");
                     }
                 }
+
+                if (runArray[i].value) {
+                    await delay(500);
+                    const etherInput = document.querySelector("#ether");
+                    etherInput.value = Number(runArray[i].value);
+                    etherInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    await delay(500);
+                }
+                
+                if (runArray[i].caller) {
+                    await delay(500);
+                    const accountsSelect = document.querySelector("#accounts");
+                    accountsSelect.value = runArray[i].caller;
+                    accountsSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    await delay(1000);
+                }
+                
+                await delay(500);
+                logWorkFlow(`Calling ${runArray[i].functionName}(${runArray[i].params ? args.join(",") : ''})...`, "ok");
+                await delay(500);
+                
+                document.querySelector(`#${runArray[i].functionName}`).click();
+                
+                logWorkFlow(`Success. Called function: ${runArray[i].functionName}(${runArray[i].params ? args.join(",") : ''})`, "ok");
+                document.querySelector("#workflow-logs").lastElementChild.scrollIntoView();
+                await delay(500);
+
+                const resultElem = document.querySelector(`#result-${runArray[i].functionName}`);
+                if (resultElem && resultElem.innerHTML !== '') {
+                    logWorkFlow(`Return: ${resultElem.innerHTML}`, "ok");
+                }
             }
-            logWorkFlow("Workflow completed", "ok");
-            document.querySelector("#workflow-logs-wrap").scrollTo(0, window.innerHeight);
+        }
+        
+        logWorkFlow("Workflow completed", "ok");
+        document.querySelector("#workflow-logs").lastElementChild.scrollIntoView();
     } catch (error) {
-        logWorkFlow("Error: An error occured during the workflow, ensure the functions you are calling are defined in your contract and the functions are called with the valid parameters.", "error");
+        console.error(error);
+        logWorkFlow(`Error: An error occurred during the workflow (${error.message || error}). Please ensure contract functions and parameters are valid.`, "error");
     }
 }
 
@@ -798,7 +827,7 @@ document.querySelector("#run-a-workflow").onclick = function() {
         <div style='padding: .65rem'>
             <p>Workflows allows you to automate smart contract deployment and interactions</p><br/>
             <input type='text' placeholder='Contract Name'/>    
-            <button id='run-btn' style='font-size: .85rem; background: #0075d4; padding: .25rem; font-weight: normal'>Run</button>
+            <button id='run-btn' style='font-size: .85rem; background: #0075d4; padding: .25rem; font-weight: normal; color: #fff'>Run</button>
         </div>
     `);
 
@@ -806,11 +835,11 @@ document.querySelector("#run-a-workflow").onclick = function() {
         parseWorkFlowFile(e.target.previousElementSibling.value.trim());
         document.querySelector("#modalbg").style.display = "none";
         document.querySelector("#workflow-logs-wrap").style.display = "block";
-        document.querySelector("#contract-area").style.gridTemplateColumns = "1.5fr 6fr 2.5fr";
+        document.querySelector("#contract-area").style.gridTemplateColumns = "2fr 4fr 2fr";
     }
 
     document.querySelector("#close-workflow-panel").onclick = function(e) {
-        document.querySelector('#contract-area').style.gridTemplateColumns = '1.5fr 6fr';
+        document.querySelector('#contract-area').style.gridTemplateColumns = '2fr 6fr';
         document.querySelector("#workflow-logs-wrap").style.display = 'none';
     }
 }
